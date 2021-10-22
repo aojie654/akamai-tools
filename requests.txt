@@ -1,0 +1,13 @@
+# 
+## 命令生成器
+1. cURL: 发起请求
+2. openssl: 获取证书
+3. md5: 查看md5
+4. base64: base64加解密
+
+>>> 1
+
+<<< https://dd.jinmu.info e xxx
+>>> curl -L "https://dd.jinmu.info" -H "Pragma: ....." --resolve "xxx:443:xxx"
+
+## 
