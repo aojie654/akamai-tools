@@ -109,14 +109,14 @@ if __name__ == '__main__':
 
     # 输出 响应headers
     output_tips = " 响应 Headers "
-    response_tmp_headers = json.dumps(dict(response_tmp.headers), ensure_ascii=False, indent=4, sort_keys=True).removeprefix("{").removesuffix("}")
+    response_tmp_headers = json.dumps(dict(response_tmp.headers), ensure_ascii=False, indent=4, sort_keys=True)[1:-1]
     print("{:=^80}\n{}".format(output_tips, response_tmp_headers))
 
     # 输出 响应内容
     response_tmp_text = response_tmp.text
     if len(response_tmp_text) == 0:
         output_tips = " 没有响应内容! "
-        print("{:=^80}\n{}".format(output_tips))
+        print("{:=^80}\n".format(output_tips))
     else:
         output_tips = " 响应内容 "
         print("{:=^80}\n{}".format(output_tips, response_tmp_text))
