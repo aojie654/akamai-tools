@@ -1,3 +1,7 @@
+# Config Files
+*.ini
+!*.example.ini
+
 # Log folder
 log
 logs

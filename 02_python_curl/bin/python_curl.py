@@ -2,6 +2,7 @@
 
 import json
 import socket
+import sys
 
 import requests
 
@@ -53,35 +54,41 @@ def new_getaddrinfo(*args):
         return prv_getaddrinfo(*args)
 
 
+# HOSTS 绑定
 socket.getaddrinfo = new_getaddrinfo
 
 
-if __name__ == '__main__':
+def print_help():
     # 说明内容
     readme_text = """
-    说明:
-    1. Akamai Header 模式:
-        n: 无
-        请求Header 中不包含 Akamai Debug Pragma Headers
-
-        s: 标准模式
-        "Pragma":   "akamai-x-cache-on, akamai-x-cache-remote-on, akamai-x-get-cache-key, akamai-x-get-true-cache-key,
-                    akamai-x-check-cacheable, akamai-x-get-request-id"
-
-        e: 增强模式
-        "Pragma":   "akamai-x-cache-on, akamai-x-cache-remote-on, akamai-x-get-cache-key, akamai-x-get-true-cache-key,
-                    akamai-x-check-cacheable, akamai-x-get-request-id, akamai-x-get-extracted-values"
+    0. 请求格式:
+        1. 参数以空格分割, 分别对应: 请求URL, 请求方法, Akamai Header 模式, (可选) 指定 Server IP, (可选) 请求 Body, (可选) 其他 Header
+        2. 可选参数以 "-" 占位
+        3. 无任何参数时输出本帮助信息
+    1. 请求URL:  完整的请求URL, 包含 protocol schema
+    2. 请求方法: HTTP 标准请求方法之一: GET HEAD POST PUT PATCH DELETE OPTIONS ...
+    3. Akamai Header 模式:
+        n: 无       请求Header 中不包含 Akamai Debug Pragma Headers
+        s: 标准模式 Pragma: akamai-x-cache-on, akamai-x-cache-remote-on, akamai-x-get-cache-key,
+                    akamai-x-get-true-cache-key,akamai-x-check-cacheable, akamai-x-get-request-id,
+        e: 增强模式 Pragma: akamai-x-cache-on, akamai-x-cache-remote-on, akamai-x-get-cache-key,
+                    akamai-x-get-true-cache-key, akamai-x-check-cacheable, akamai-x-get-request-id,
+               以及 akamai-x-get-extracted-values
+    4. 举例:
+        例1: akcurl http://example.com GET s 
+        例2: akcurl http://example.com POST e 
     """
     print(readme_text)
 
+
+if __name__ == '__main__':
     # 获取输入
-    input_str = input("请以空格分割, 输入URL, 请求方法, Akamai Header 模式, 服务器IP: ")
-    # input_str = "https://dd.jinmu.info GET n 23.50.49.10"
-    # input_str = "https://dd.jinmu.info HEAD s 23.50.49.10"
-    # input_str = "https://dd.jinmu.info POST e 23.50.49.10"
-    # 以空格分割输入, 并获取 请求url, 请求方法, Akamai Header 模式, 服务器 IP
-    input_list = input_str.split(" ")
-    request_url, request_method, request_akamai_headers_type, request_server_ip = input_list[0], input_list[1], input_list[2], input_list[3]
+    input_str = input()
+    # input_str = "https://www.akamai.com GET n 23.50.49.10"
+    # input_str = "https://www.akamai.com HEAD s 23.50.49.10"
+    # input_str = "https://www.akamai.com POST e 23.50.49.10"
+    # 以空格分割参数, 获取 请求url, 请求方法, Akamai Header 模式, 服务器 IP
+    request_url, request_method, request_akamai_headers_type, request_server_ip = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], 
     request_hostname = request_url.split("/")[2]
 
     # 初始化session, 更新 hostname 及 ip
@@ -109,7 +116,7 @@ if __name__ == '__main__':
 
     # 输出 响应headers
     output_tips = " 响应 Headers "
-    response_tmp_headers = json.dumps(dict(response_tmp.headers), ensure_ascii=False, indent=4, sort_keys=True)[1:-1]
+    response_tmp_headers = json.dumps(dict(response_tmp.headers), ensure_ascii=False, indent=4, sort_keys=True)[1:-1].replace("\"", "").replace(" "*4, "")
     print("{:=^80}\n{}".format(output_tips, response_tmp_headers))
 
     # 输出 响应内容
