@@ -411,74 +411,76 @@ def update():
     url_cip = "https://{:}{:}{:}".format(server_update, url_path, filename_cip)
     url_info = "https://{:}{:}{:}".format(server_update, url_path, filename_info)
 
-    # Create request object
-    # 创建对象获取远端信息
-    info_response = requests.request(method="GET", url=url_info)
-    # Judge the status code is 200 or not
-    # 当状态码存在且为200时:
-    if ((info_response.status_code is not None) and (info_response.status_code == 200)):
-        # Get the version of remote info
-        # 从远端信息中获取 版本号
-        info_remote_obj = info_response.json()
-        version_remote = info_remote_obj["version"]["Version"]
-        version_remote_int = int(version_remote.replace(".", ""))
-        tip_update = {
-            "info path": "{:}".format(path_info),
-            "info URL": "{:}".format(url_info),
-            "cip path": "{:}".format(path_cip),
-            "cip URL": "{:}".format(url_cip),
-            "cip current version": "{:}".format(version_current),
-            "cip retmote version": "{:}".format(version_remote),
-        }
-        for key in tip_update.keys():
-            print("{:}: {:}".format(key, tip_update[key]))
-        # Print a blank line.
-        print("")
+    tip_update = {
+        "info path": "{:}".format(path_info),
+        "info URL": "{:}".format(url_info),
+        "cip path": "{:}".format(path_cip),
+        "cip URL": "{:}".format(url_cip),
+        "cip current version": "{:}".format(version_current),
+    }
+    for key in tip_update.keys():
+        print("{:}: {:}".format(key, tip_update[key]))
 
-        if version_remote_int > version_current_int:
-            # Update cip when remote newer than current
-            # 当远端版本高于当前版本时, 进行文件更新
-            result_response_cip = requests.request(method="GET", url=url_cip)
-            if ((result_response_cip.status_code is not None) and (result_response_cip.status_code == 200)):
-                # Output success 
-                # 文件请求状态正常时, 输出更新开始状态
-                print("Request cip success, strating update...")
-                # Update cip file
-                # 更新 cip 文件内容
-                cip_obj = open(file=path_cip, encoding="utf-8", mode="w", errors="ignore")
-                cip_obj.write(result_response_cip.text)
-                cip_obj.flush()
-                cip_obj.close()
-                # Update info file
-                # 更新 info 文件内容
-                info_obj = open(file=path_info, encoding="utf-8", mode="w", errors="ignore")
-                info_obj.write(info_response.text)
-                info_obj.flush()
-                info_obj.close()
-                # Output update log
-                # 输出更新日志
-                args.l = True
-                log_update = get_log_update(args)
-                print("\nUpdate log: {:}\n".format(log_update))
-                # Output update status
-                # 输出更新完成状态
-                print("Update finished. Let's have a look about how many bugs are added in this update~")
-            elif (result_response_cip.status_code is not None):
-                print("Oops! Error when request remote version: no status code!")
+    try:
+        # Create request object
+        # 创建对象获取远端信息
+        info_response = requests.request(method="GET", url=url_info)
+        # When request success and the status code is 200
+        # 当请求正常且状态码为200时
+        if (info_response.status_code == 200):
+            # Get the version of remote info
+            # 从远端信息中获取 版本号
+            info_remote_obj = info_response.json()
+            version_remote = info_remote_obj["version"]["Version"]
+            version_remote_int = int(version_remote.replace(".", ""))
+            print("cip retmote version: {:}".format(version_remote))
+
+            if version_remote_int > version_current_int:
+                # Update cip when remote newer than current
+                # 当远端版本高于当前版本时, 进行文件更新
+                result_response_cip = requests.request(method="GET", url=url_cip)
+                if (result_response_cip.status_code == 200):
+                    # Output success
+                    # 文件请求状态正常时, 输出更新开始状态
+                    print("Request cip success, strating update...")
+                    # Update cip file
+                    # 更新 cip 文件内容
+                    cip_obj = open(file=path_cip, encoding="utf-8", mode="w", errors="ignore")
+                    cip_obj.write(result_response_cip.text)
+                    cip_obj.flush()
+                    cip_obj.close()
+                    # Update info file
+                    # 更新 info 文件内容
+                    info_obj = open(file=path_info, encoding="utf-8", mode="w", errors="ignore")
+                    info_obj.write(info_response.text)
+                    info_obj.flush()
+                    info_obj.close()
+                    # Output update log
+                    # 输出更新日志
+                    args.l = True
+                    log_update = get_log_update(args)
+                    print("\nUpdate log: {:}\n".format(log_update))
+                    # Output update status
+                    # 输出更新完成状态
+                    tip_update = "Update finished. Let's have a try about how many bugs are added in this update~"
+                else:
+                    tip_update = "Oops! Received status code: {:} when request to {:}".format(result_response_cip.status_code, url_cip)
+                print()
+                print(tip_update)
+            elif version_remote == version_current:
+                # No need update when local version equals remote version
+                # 版本一致时提示无需更新
+                print("We are using the same version of remote, so there is no need to update~")
             else:
-                print("Oops! Error when request remote version: status code: {:}".format(result_response_cip.status_code))
-        elif version_remote == version_current:
-            # No need update when local version equals remote version
-            # 版本一致时提示无需更新
-            print("We are using the same version of remote, so there is no need to update~")
+                # Output msg when local version newer than remote one
+                # 远端版本低于当前版本时
+                print("Emmm... I think maybe you edited your local version which is newer than remote one?")
         else:
-            # Output msg when local version newer than remote one
-            # 远端版本低于当前版本时
-            print("Emmm... I think maybe you edited your local version which is newer than remote one?")
-    elif (info_response.status_code is None):
-        print("Oops! Error when request remote version: no status code!")
-    else:
-        print("Oops! Error when request remote version: status code: {:}".format(info_response.status_code))
+            print()
+            print("Oops! Received status code: {:} when request to {:}".format(info_response.status_code, url_info))
+    except Exception as exception:
+        print()
+        print("Oops! Error occurs when request to {:}: {:}".format(url_info, exception))
 
 
 if __name__ == "__main__":
@@ -530,7 +532,7 @@ if __name__ == "__main__":
         # Use the input "-d" as DNS server
         # 使用输入时指定的dns服务器
         if args.dns:
-            # Use input as DNS when 
+            # Use input as DNS when
             # 当DNS服务器不为空时, 使用传入的DNS服务器
             server_dns = args.dns
             tip_dns = server_dns
