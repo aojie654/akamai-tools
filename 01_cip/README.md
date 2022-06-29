@@ -96,7 +96,7 @@ python3 --version
             ```
 
           - 重启电脑生效
-        - 将 alias 配置在 ~/.bashrc 中
+        - 将 alias 配置在 ~/.bashrc 中 (有可能不生效)
 
      3. 我使用的是 zsh, 那么环境变量在 ~/.zshrc 中, 则在 ~/.zshrc 中添加如下行:
 

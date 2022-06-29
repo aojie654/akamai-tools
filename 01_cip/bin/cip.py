@@ -423,15 +423,17 @@ def update():
         version_remote = info_remote_obj["version"]["Version"]
         version_remote_int = int(version_remote.replace(".", ""))
         tip_update = {
-            "cip path": "{:}".format(path_cip),
-            "cip URL": "{:}".format(url_cip),
             "info path": "{:}".format(path_info),
             "info URL": "{:}".format(url_info),
+            "cip path": "{:}".format(path_cip),
+            "cip URL": "{:}".format(url_cip),
             "cip current version": "{:}".format(version_current),
             "cip retmote version": "{:}".format(version_remote),
         }
         for key in tip_update.keys():
             print("{:}: {:}".format(key, tip_update[key]))
+        # Print a blank line.
+        print("")
 
         if version_remote_int > version_current_int:
             # Update cip when remote newer than current
