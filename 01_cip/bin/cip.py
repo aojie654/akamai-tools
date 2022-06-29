@@ -470,10 +470,12 @@ def update():
             elif version_remote == version_current:
                 # No need update when local version equals remote version
                 # 版本一致时提示无需更新
+                print()
                 print("We are using the same version of remote, so there is no need to update~")
             else:
                 # Output msg when local version newer than remote one
                 # 远端版本低于当前版本时
+                print()
                 print("Emmm... I think maybe you edited your local version which is newer than remote one?")
         else:
             print()
