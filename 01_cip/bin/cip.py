@@ -20,12 +20,23 @@ from akadata import EdgeScape
 # Default settings
 # 默认设置
 config_filename = "config.ini"
-config_path = Path(__file__).parent.joinpath(config_filename)
+folder_path = Path(__file__).parent
+config_path = folder_path.joinpath(config_filename)
 config_parser = ConfigParser()
 config_parser.read(config_path)
 config_stanza = "DEFAULT"
 config_default = config_parser[config_stanza]
 server_timeout = eval(config_default["timeout"])
+
+# Set the output fields
+# 配置需要输出的字段
+list_keys_return = eval(config_default["fields"])
+# Config to display fields name or not
+# 配置是否显示字段名
+if config_default["fields_name"].lower() == "off":
+    display_field_name = False
+else:
+    display_field_name = True
 
 # Initiate the server info of EdgeScape Facilitator
 # 初始化 Edgescape Facilitator 服务器信息
@@ -38,17 +49,14 @@ server_port = eval(config_edgescape["port"])
 # 初始化 DNS
 server_dns = str()
 
-# Set the output fields
-# 配置需要输出的字段
-list_keys_return = [
-    "country_code",
-    "region_code",
-    "city",
-    "network",
-    "company",
-    "timezone",
-    "default_answer"
-]
+# Initiate Country Code
+# 初始化 国家代码
+country_filename = "country.json"
+country_path = folder_path.joinpath(country_filename)
+country_obj = open(file=country_path, mode="r", encoding="utf-8", errors="ignore")
+country_text = country_obj.read()
+country_json = json.loads(country_text)
+country_obj.close()
 
 
 def cip_direct(inputs):
@@ -141,14 +149,22 @@ def cip_ip(ip):
         result_final = ip + ": [ "
         es_client = EdgeScape(host=server_es, port=server_port)
         result_lookup = es_client.ip_lookup(ip, timeout=server_timeout)
+        # print(result_lookup)
         for key_tmp in list_keys_return:
             if key_tmp in result_lookup.keys():
+                value_tmp = result_lookup[key_tmp]
+                if (key_tmp == "country_code") and (value_tmp in country_json.keys()):
+                    key_tmp = "country"
+                    value_tmp = country_json[value_tmp]
                 if key_tmp == "default_answer":
-                    if result_lookup[key_tmp] == True:
-                        result_lookup[key_tmp] = "Y"
+                    if value_tmp == True:
+                        value_tmp = "Y"
                     else:
-                        result_lookup[key_tmp] = "N"
-                result_final = result_final + key_tmp + ": " + result_lookup[key_tmp]
+                        value_tmp = "N"
+                if display_field_name:
+                    result_final = result_final + key_tmp + ": " + value_tmp
+                else:
+                    result_final = result_final + value_tmp
                 if key_tmp != list_keys_return[-1]:
                     result_final = result_final + ", "
                 else:
@@ -487,7 +503,7 @@ def update():
 
 if __name__ == "__main__":
     # _DEBUG_FLAG
-    # sys.argv = [__file__, "-i", "1.1.1.1"]
+    sys.argv = [__file__, "-i", "1.1.1.1"]
     # sys.argv = [__file__, "-i", "1.1.1.1", "www.akamai.com"]
     # sys.argv = [__file__, "-i", "1.1.1.1", "www.akamai.com", "-d", "8.8.8.8"]
     # sys.argv = [__file__, "-f", "/Users/sao/Downloads/iptest1.txt"]
