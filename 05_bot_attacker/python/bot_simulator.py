@@ -235,9 +235,9 @@ def main():
     """
     continue_tmp = True
     while(continue_tmp):
-        request_type_tmp, request_type_name_tmp = input_request_type()
         hostname_tmp = input_hostname()
         # hostname_tmp = "www.aojie654.com"
+        request_type_tmp, request_type_name_tmp = input_request_type()
         count_tmp = input_count()
         print("请求类型: {:}, 域名: {:}, 次数: {:}".format(request_type_tmp, hostname_tmp, count_tmp))
         request_info_tmp = request_type_decide(hostname_tmp, request_type_tmp)
