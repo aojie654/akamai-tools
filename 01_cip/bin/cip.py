@@ -51,7 +51,7 @@ server_dns = str()
 
 # Initiate Region Code
 # 初始化 Region代码
-regjion_filename = "regjion.json"
+regjion_filename = "region.json"
 regjion_path = folder_path.joinpath(regjion_filename)
 regjion_obj = open(file=regjion_path, mode="r", encoding="utf-8", errors="ignore")
 regjion_text = regjion_obj.read()
