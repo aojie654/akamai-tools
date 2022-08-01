@@ -51,12 +51,12 @@ server_dns = str()
 
 # Initiate Region Code
 # 初始化 Region代码
-regjion_filename = "region.json"
-regjion_path = folder_path.joinpath(regjion_filename)
-regjion_obj = open(file=regjion_path, mode="r", encoding="utf-8", errors="ignore")
-regjion_text = regjion_obj.read()
-regjion_json = json.loads(regjion_text)
-regjion_obj.close()
+region_filename = "region.json"
+region_path = folder_path.joinpath(region_filename)
+region_obj = open(file=region_path, mode="r", encoding="utf-8", errors="ignore")
+region_text = region_obj.read()
+region_json = json.loads(region_text)
+region_obj.close()
 
 
 def cip_direct(inputs):
@@ -153,9 +153,9 @@ def cip_ip(ip):
         for key_tmp in list_keys_return:
             if key_tmp in result_lookup.keys():
                 value_tmp = result_lookup[key_tmp]
-                if (key_tmp == "country_code") and (value_tmp in regjion_json.keys()):
-                    key_tmp = "regjion"
-                    value_tmp = regjion_json[value_tmp]
+                if (key_tmp == "country_code") and (value_tmp in region_json.keys()):
+                    key_tmp = "region"
+                    value_tmp = region_json[value_tmp]
                 if key_tmp == "default_answer":
                     if value_tmp == True:
                         value_tmp = "Y"

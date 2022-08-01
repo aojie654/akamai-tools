@@ -4,10 +4,11 @@
 
 | No.  | Name                                                   | Processing | Description                                      |
 | :--- | :----------------------------------------------------- | :--------- | :----------------------------------------------- |
-| 01   | [cip](./01_cip/README.md)                              | v0.2.0     | IP2Location with Akamai EdgeScape Pro            |
-| 02   | python_curl                                            | 暂时鸽了   | simple curl with Akamai pragma headers in python |
-| 03   | [reference_decoder](./03_refference_decoder/README.md) | Finished   | decode the reference code with HTML encoded      |
-| 04   | timezone_convertor                                     | developing | Convert the timestamp with specific timezone     |
+| 01   | [CIP](./01_cip/README.md)                              | developing | IP2Location with Akamai EdgeScape Pro            |
+| 02   | Python Curl                                            | 暂时鸽了   | simple curl with Akamai pragma headers in python |
+| 03   | [Reference Decoder](./03_refference_decoder/README.md) | Finished   | decode the reference code with HTML encoded      |
+| 04   | Timezone Convertor                                     | developing | Convert the timestamp with specific timezone     |
+| 05   | [Bot Attacker](./05_bot_attacker/README.md)            | developing | Attack simulator                                 |
 
 ## 0x02. What shoud I do?
 
@@ -34,3 +35,10 @@
      ```
 
   3. RESTART YOUR COMPUTER TO MAKE THE CHANGE EFFECT.
+  4. Set variable for shell in ~/.zsh:
+
+     ``` Bash
+     export AK_TOOLS_HOME="/Users/sao/datas_l/git/akamai-tools"
+     ```
+
+  5. Read the doc of the tool which you want to use.

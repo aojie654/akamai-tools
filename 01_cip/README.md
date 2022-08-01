@@ -40,23 +40,24 @@ python3 --version
     Python 3.9.12
     ```
 
-2. (中国大陆) 配置 python 镜像源以加快 python 库安装.
+2. (内地) 配置 python 镜像源以加快 python 库安装.
     通过以下命令, 为 Python pypi 配置 清华大学 镜像源:
 
     ``` Bash
-    python3 -m pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+    python3 -m pip config set global.index-url https://mirror.nju.edu.cn/pypi/web/simple
     ```
 
-3. 通过以下命令，为 Python 安装第三方库 requests, dnspython:
+3. 通过以下命令，为 Python 安装第三方库 akadata, dnspython, requests:
 
     ``` Bash
-    python3 -m pip install akadata requests dnspython
+    python3 -m pip install akadata dnspython requests
     ```
 
 4. 修改配置文件:
    1. 复制 `01_cip/bin/config.example.ini` 为 `01_cip/bin/config.ini`
-   2. 修改 `[EDGESCAPE]` 中的 EdgeScape 服务器信息
-   3. 修改 `[UPDATE]` 中的 cip 更新服务器信息
+   2. (可选) 修改 `[DEFAULT]` 中的 EdgeSacpe 服务器请求超时时间及字段显示信息
+   3. 修改 `[EDGESCAPE]` 中的 EdgeScape 服务器信息
+   4. 修改 `[UPDATE]` 中的 cip 更新服务器信息
 5. 以 cip.py 路径为 `/Users/user/git/akamai-tools/01_cip/bin/cip.py` 为例, 通过以下命令查看 cip 是否运行正常:
 
    ``` Bash
@@ -66,49 +67,53 @@ python3 --version
    输出:
 
    ``` Text
-   ===== SERVER: es.server.com:2001
+   ===== SERVER: gcps-es.srip.net:21001
    ===== DNS: Local DNS
-   1.1.1.1: [ country_code: AU, region_code: NSW, city: SYDNEY, network: mil, company: APNIC_and_Cloudflare_DNS_Resolver_project, timezone: GMT+10, default_answer: N ]
+   1.1.1.1: [ region: Australia, region_code: NSW, city: SYDNEY, network: mil, company: APNIC_and_Cloudflare_DNS_Resolver_project, timezone: GMT+10, default_answer: N ]
    ```
 
 6. 设置 alias
    - Unix
-     以我的环境为例, cip文件的路径是 /Users/sao/datas_l/git/akamai-tools/01_cip/bin/cip.py:
-     1. 查看当前使用的终端:
+     以我的环境为例:
+     - repo 对应 Shell 变量为 AK_TOOLS_HOME
+     - 已经设置过该变量
+     - cip文件的路径是 ${AK_TOOLS_HOME}/01_cip/bin/cip.py:
+       1. 查看当前使用的终端:
 
-        ``` Bash
-        echo ${SHELL}
-        ```
+          ``` Bash
+          echo ${SHELL}
+          ```
 
-        输出:
+          输出:
 
-        ``` Text
-        /bin/zsh
-        ```
+          ``` Text
+          /bin/zsh
+          ```
 
-     2. 如果发现输出是 `/bin/bash`, 有两个选择:
+       2. 如果发现输出是 `/bin/bash`, 有两个选择:
 
-        - (推荐) 更改默认终端为 `zsh`:
-          - 运行命令:
+          - (推荐) 更改默认终端为 `zsh`:
+            - 运行命令:
 
-            ``` Bash
-            chsh -s /bin/zsh
-            ```
+              ``` Bash
+              chsh -s /bin/zsh
+              ```
 
-          - 重启电脑生效
-        - 将 alias 配置在 ~/.bashrc 中 (有可能不生效)
+            - 重启电脑生效
+          - 将 alias 配置在 ~/.bashrc 中 (有可能不生效)
 
-     3. 我使用的是 zsh, 那么环境变量在 ~/.zshrc 中, 则在 ~/.zshrc 中添加如下行:
+       3. 我使用的是 zsh, 那么环境变量在 ~/.zshrc 中, 则在 ~/.zshrc 中添加如下行:
 
-        ``` Bash
-        alias akcip="python3 /Users/sao/datas_l/git/akamai-tools/01_cip/bin/cip.py"
-        ```
+          ``` Bash
+          # 注意需要放在 export AK_TOOLS_HOME=.... 下面
+          alias akcip="python3 ${AK_TOOLS_HOME}/01_cip/bin/cip.py"
+          ```
 
-     4. 重新打开 Terminal, 查看 cip 版本以检查配置是否正常:
+       4. 重新打开 Terminal, 进行一次查询检查配置是否正常:
 
-        ``` Bash
-        akcip -v
-        ```
+          ``` Bash
+          akcip -v
+          ```
 
    - Windows
      1. 打开 PowerShell, 通过以下命令查看 PowerShell 配置文件路径:
@@ -217,4 +222,4 @@ python3 --version
 
 ## 0x05. 其他
 
-- 如果你觉得这个结果看起来信息不够, 或者信息太多, 或者就是看他不爽, 可以修改全局变量 "list_keys_return" 这个列表匹配到你想要的字段;
+- 如果发现在查询过程中存在 "Request error of xxx: timed out", 那就是请求去 EdgeScape server 失败了, 重试即可
