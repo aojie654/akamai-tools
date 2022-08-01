@@ -35,7 +35,7 @@
      ```
 
   3. RESTART YOUR COMPUTER TO MAKE THE CHANGE EFFECT.
-  4. Set variable for shell in ~/.zsh:
+  4. Set variable `AK_TOOLS_HOME` for shell in ~/.zsh. For example, the repo is located at "/Users/sao/datas_l/git/akamai-tools" on my computer:
 
      ``` Bash
      export AK_TOOLS_HOME="/Users/sao/datas_l/git/akamai-tools"
