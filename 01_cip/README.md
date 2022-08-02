@@ -19,7 +19,7 @@ python3 --version
 
 - Programing Language:
   - Python 3.8+
-- Python libs:
+- Python Libs:
   - akadata
   - dnspython
   - requests

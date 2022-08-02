@@ -4,7 +4,7 @@
 
 - Send request with python `requests`.
 
-## 0x02. Python Package
+## 0x02. Python Libs
 
 - requests
 
