@@ -1,4 +1,4 @@
-# Reference Error String Translation
+# Reference Error String Decoder
 
 ## 0x00. How it works
 
