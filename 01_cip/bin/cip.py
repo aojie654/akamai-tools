@@ -129,12 +129,22 @@ def cip_file(files):
         result_cip_list = list()
         # Revoke cip_process() when length of input list is not 0, then append the result list to files
         # 当列表长度不为0时, 将文件内容列表作为输入调用cip_process, 获取结果后追加写入文件
-        if len(inputs) != 0:
+        len_inputs = len(inputs)
+
+        if len_inputs != 0:
+            tip_msg = "Length of file: {:} {:}".format(file, len_inputs)
+            print(tip_msg)
+            current_no = 0
             for input in inputs:
-                result_cip_list = result_cip_list + cip_process(input=input)
+                current_no += 1
+                result_cip_current = cip_process(input=input)
+                result_cip_list = result_cip_list + result_cip_current
+                tip_msg = "No: {:} : {:}".format(current_no, result_cip_current)
+                print(tip_msg)
             file_writer(file=file, result_cip_list=result_cip_list)
         else:
-            pass
+            tip_msg = "Length of file: {:} {:}".format(file, len_inputs)
+            print(tip_msg)
 
     return
 
@@ -162,13 +172,13 @@ def cip_ip(ip):
                     else:
                         value_tmp = "N"
                 if display_field_name:
-                    result_final = result_final + key_tmp + ": " + value_tmp
+                    result_final = "{:}{:}: {:}".format(result_final, key_tmp, value_tmp)
                 else:
-                    result_final = result_final + value_tmp
+                    result_final = "{:}{:}".format(result_final, value_tmp)
                 if key_tmp != list_keys_return[-1]:
-                    result_final = result_final + ", "
+                    result_final = "{:}{:}".format(result_final, ", ")
                 else:
-                    result_final = result_final + " ]"
+                    result_final = "{:}{:}".format(result_final, " ]")
             else:
                 continue
     except Exception as identifier:
