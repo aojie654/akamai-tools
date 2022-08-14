@@ -9,15 +9,16 @@ import sys
 import requests
 
 url_protocol = "https"
-url_hostname = input("Input hostname: ")
+url_hostname = sys.argv[1]
+# url_hostname = input("Input hostname: ")
 # url_hostname = "cxt.gss-proshop.com"
 # print("Hostname: {:}".format(url_hostname))
 url_base = "{:}://{:}".format(url_protocol, url_hostname)
 letters_tmp = string.hexdigits
 
-threads_limit = int(sys.argv[1])
-attack_limit = int(sys.argv[2])
-attack_uri = sys.argv[3]
+threads_limit = int(sys.argv[3])
+attack_limit = int(sys.argv[4])
+attack_uri = sys.argv[2]
 
 request_header = {
     "User-Agent": "GoogleBot/1.0",
