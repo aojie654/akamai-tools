@@ -5,6 +5,7 @@ import random
 import string
 import threading
 import sys
+from datetime import datetime
 
 import requests
 
@@ -53,7 +54,9 @@ class attackerClass(threading.Thread):
                     self.attack_uri = self.attack_uri + random.choice(letters_tmp)
             url_url = "{:}{:}".format(self.url_base, self.attack_uri)
 
-            print_msg = "Time: {:}/{:}, URL: {:}, ".format(counter_tmp, self.attack_limit, url_url)
+            time_format = "%Y.%m.%d %H:%M:%S.%f"
+            time_stamp = datetime.strftime(datetime.now(), time_format)
+            print_msg = "Time: {:}, Counter: {:}/{:}, URL: {:}, ".format(time_stamp, counter_tmp, self.attack_limit, url_url)
             try:
                 response_obj = requests.request(method="GET", url=url_url, timeout=5, headers=request_header)
                 print_msg = print_msg + "status code: {:}".format(response_obj.status_code)
