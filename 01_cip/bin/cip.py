@@ -513,7 +513,7 @@ def update():
 
 if __name__ == "__main__":
     # _DEBUG_FLAG
-    # sys.argv = [__file__, "-i", "1.1.1.1"]
+    # sys.argv = [__file__, "-i", "103.145.20.0", "109.165.0.0"]
     # sys.argv = [__file__, "-i", "1.1.1.1", "www.akamai.com"]
     # sys.argv = [__file__, "-i", "1.1.1.1", "www.akamai.com", "-d", "8.8.8.8"]
     # sys.argv = [__file__, "-f", "/Users/sao/Downloads/iptest1.txt"]
