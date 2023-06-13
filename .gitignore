@@ -1,6 +1,12 @@
 # Config Files
 *.ini
 !*.example.ini
+*.json
+!*.example.json
+
+# Input Files
+*.txt
+!*.example.txt
 
 # Log folder
 log
