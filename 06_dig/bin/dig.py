@@ -163,7 +163,7 @@ def output_hostname_json(hostname):
     return output_result
 
 
-def process_output(output_result, output_formats, output_deduplicated=False):
+def process_output(output_result, output_formats, output_deduplicated=False, output_exception=True):
     """
     output result like:
     {
@@ -225,12 +225,18 @@ def process_output(output_result, output_formats, output_deduplicated=False):
             output_list_txt = list()
             output_result_txt[hostname] = str()
             for dns_server in output_result[hostname].keys():
-                    if ((output_result[hostname][dns_server]["Result"] in output_list_txt) and output_deduplicated):
+                    output_dict_txt = output_result[hostname][dns_server]
+                    if ((output_dict_txt["Result"] in output_list_txt) and output_deduplicated):
                         continue
                     else:
-                        output_result_txt[hostname] = "{:}{:}, ".format(output_result_txt[hostname], output_result[hostname][dns_server]["Result"])
-                        output_list_txt.append(output_result[hostname][dns_server]["Result"])
+                        output_result_txt[hostname] = "{:}{:}, ".format(output_result_txt[hostname], output_dict_txt["Result"])
+                        output_list_txt.append(output_dict_txt["Result"])
+                    # Ignore Exception in result: txt
+                    if ((output_dict_txt["Result"].startswith("Exception")) and (not output_exception)):
+                        continue
                 # output_result_txt[hostname] = output_hostname_content_txt
+            if output_result_txt[hostname] == "":
+                output_result_txt[hostname] = "{:}{:}".format(hostname, "No Result.")
         output_result_dict["txt"] = output_result_txt
     if "json" in output_formats:
         output_result_json = output_result
@@ -239,9 +245,9 @@ def process_output(output_result, output_formats, output_deduplicated=False):
     return output_result_dict
 
 
-def process_output_std(output_result, output_formats, output_deduplicate=False):
+def process_output_std(output_result, output_formats, output_deduplicate=False, output_exception=False):
 
-    output_result = process_output(output_result, output_formats=output_formats, output_deduplicated=output_deduplicate)
+    output_result = process_output(output_result, output_formats=output_formats, output_deduplicated=output_deduplicate, output_exception=output_exception)
     if "csv" in output_formats:
         output_result_csv = dict()
         for hostname in output_result["csv"].keys():
@@ -275,15 +281,17 @@ if __name__ == "__main__":
     arg_parser.add_argument("-t", "--type", type=str, nargs=1, default="A", help="Resolve the specific record type. Default: A")
     arg_parser.add_argument("-s", "--save", action="store_true", help="(Unsupported now)\nSave output with specific format as file with filename same as hostnames.")
     arg_parser.add_argument("-d", "--deduplicate", action="store_true", help="Remove the duplicated values in result with txt format.")
+    arg_parser.add_argument("-e", "--exception", action="store_false", help="Include exception in result with txt format.")
     arg_parser.add_argument("-v", "--version", action="version", version="akdig v0.1-Alpha")
     # args = arg_parser.parse_args()
+    # __DEBUG_FLAG__: inputs
     # args = arg_parser.parse_args("-h".split())
-    # args = arg_parser.parse_args("-i www.akamai.com www.akamai.cn".split())
-    # args = arg_parser.parse_args("-i www.akamai.com www.akamai.cn -o txt csv json".split())
-    # args = arg_parser.parse_args("-i www.akamai.com www.akamai.cn -o txt csv json -s".split())
-    # args = arg_parser.parse_args("-i www.akamai.com www.akamai.cn -o txt csv json -s -d".split())
-    # args = arg_parser.parse_args("-i www.akamai.com www.akamai.net -o txt csv -d".split())
-    args = arg_parser.parse_args("-i www.akamai.com.cn -o txt -d".split())
+    # args = arg_parser.parse_args("-i www.example.com www.example.net.cn".split())
+    # args = arg_parser.parse_args("-i www.example.com www.example.net.cn -o txt csv json".split())
+    # args = arg_parser.parse_args("-i www.example.com www.example.net.cn -o txt csv json -s".split())
+    # args = arg_parser.parse_args("-i www.example.com www.example.net.cn -o txt csv json -s -d".split())
+    # args = arg_parser.parse_args("-i www.example.com www.example.net.cn -o txt csv -d".split())
+    args = arg_parser.parse_args("-i www.example.com www.example.net.cn -o txt -d -s".split())
 
     # Get all the hostnames
     if (args.inputs or args.files):

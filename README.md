@@ -9,6 +9,7 @@
 | 03   | [Reference Decoder](./03_refference_decoder/README.md) | Finished   | decode the reference code with HTML encoded      |
 | 04   | Timezone Convertor                                     | developing | Convert the timestamp with specific timezone     |
 | 05   | [Bot Attacker](./05_bot_attacker/README.md)            | developing | Attack simulator                                 |
+| 06   | [dig](./06_dig/README.md)                              | developing | DNS resolve with multple dns like dnschecker.org |
 
 ## 0x02. What shoud I do?
 
@@ -16,7 +17,7 @@
 - (RECOMMENDED) Unix(linux/macOS) set the default shell to `zsh`.
   1. Check current shell you use:
 
-     ``` Bash
+     ``` shell
      echo ${SHELL}
      ```
 
@@ -30,14 +31,14 @@
      But if the output is not `zsh`, continue setting please.
   2. Run the command to change the default shell to `zsh`:
 
-     ``` Bash
+     ``` shell
      chsh -s /bin/zsh
      ```
 
   3. RESTART YOUR COMPUTER TO MAKE THE CHANGE EFFECT.
   4. Set variable `AK_TOOLS_HOME` for shell in ~/.zsh. For example, the repo is located at "/Users/sao/datas_l/git/akamai-tools" on my computer:
 
-     ``` Bash
+     ``` shell
      export AK_TOOLS_HOME="/Users/sao/datas_l/git/akamai-tools"
      ```
 

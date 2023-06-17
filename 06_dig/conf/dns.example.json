@@ -1,6 +1,6 @@
 {
     "127.0.0.1": {
-        "DNS": "DEFAULT",
+        "DNS": "127.0.0.1",
         "Location": "Local",
         "Provider": "Local ISP"
     },
