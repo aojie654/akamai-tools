@@ -20,6 +20,7 @@ path_dns_input = path_conf_folder.joinpath(filename_dns)
 path_input_folder = path_conf_folder
 filename_hostnames_input = "input_hostnames.txt"
 path_hostnames_input = path_input_folder.joinpath(filename_hostnames_input)
+var_show_processing = False
 
 
 def get_dns():
@@ -71,8 +72,9 @@ def resolve_hostname(hostname, dns_type):
         output_result_hostname = dict()
         dns_resolver = resolver.Resolver()
         for dns_server in dns_dict.keys():
-            print_msg = "Working on hostname: {:} of DNS: {:}, ".format(hostname, dns_server)
-            print(print_msg, end="")
+            if var_show_processing:
+                print_msg = "Working on hostname: {:} of DNS: {:}, ".format(hostname, dns_server)
+                print(print_msg, end="")
             output_result_hostname[dns_server] = dns_dict[dns_server]
             dns_resolver.nameservers = [dns_server]
             try:
@@ -82,8 +84,9 @@ def resolve_hostname(hostname, dns_type):
             except Exception as expt:
                 dns_resolve_result = "Exception: {:}".format(str(expt))
             output_result_hostname[dns_server]["Result"] = dns_resolve_result
-            print_msg = "result: {:}".format(dns_resolve_result)
-            print(print_msg)
+            if var_show_processing:
+                print_msg = "result: {:}".format(dns_resolve_result)
+                print(print_msg)
     except Exception as expt:
         output_result_hostname = {
             "Exception": "{:}, {:}".format(hostname, expt),
@@ -278,27 +281,26 @@ if __name__ == "__main__":
     arg_parser.add_argument("-i", "--inputs", type=str, nargs="+", help="Use hostnames as input, split with white space.")
     arg_parser.add_argument("-f", "--files", type=str, nargs="+", help="(Unsupported now)\nUse files as input, split with white space.")
     arg_parser.add_argument("-o", "--output", type=str, nargs="+", default="json", help="Output with [json|csv|txt] format. Can be multiple values. Default: json.")
-    arg_parser.add_argument("-t", "--type", type=str, nargs=1, default="A", help="Resolve the specific record type. Default: A")
+    arg_parser.add_argument("-t", "--type", action="store", default="A", help="Resolve the specific record type. Default: A")
     arg_parser.add_argument("-s", "--save", action="store_true", help="(Unsupported now)\nSave output with specific format as file with filename same as hostnames.")
     arg_parser.add_argument("-d", "--deduplicate", action="store_true", help="Remove the duplicated values in result with txt format.")
+    arg_parser.add_argument("-p", "--processing", action="store_true", help="Display the processing ")
     arg_parser.add_argument("-e", "--exception", action="store_false", help="Include exception in result with txt format.")
     arg_parser.add_argument("-v", "--version", action="version", version="akdig v0.1-Alpha")
-    # args = arg_parser.parse_args()
+    args = arg_parser.parse_args()
     # __DEBUG_FLAG__: inputs
-    # args = arg_parser.parse_args("-h".split())
-    # args = arg_parser.parse_args("-i www.example.com www.example.net.cn".split())
-    # args = arg_parser.parse_args("-i www.example.com www.example.net.cn -o txt csv json".split())
-    # args = arg_parser.parse_args("-i www.example.com www.example.net.cn -o txt csv json -s".split())
-    # args = arg_parser.parse_args("-i www.example.com www.example.net.cn -o txt csv json -s -d".split())
-    # args = arg_parser.parse_args("-i www.example.com www.example.net.cn -o txt csv -d".split())
-    args = arg_parser.parse_args("-i www.example.com www.example.net.cn -o txt -d -s".split())
+    # args = arg_parser.parse_args("-i www.akamai.com -o csv -t CNAME".split())
 
     # Get all the hostnames
+    if args.processing:
+        var_show_processing = args.processing
+
     if (args.inputs or args.files):
         if args.inputs:
             output_result = process_input_std(hostnames=args.inputs, dns_type=args.type)
         elif args.files:
             output_result = process_input_files(files=args.files, dns_type=args.type)
+
 
         # Save to file or not
         if args.save:

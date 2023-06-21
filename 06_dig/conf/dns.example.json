@@ -4,6 +4,16 @@
         "Location": "Local",
         "Provider": "Local ISP"
     },
+    "180.168.255.118": {
+        "DNS": "180.168.255.118",
+        "Location": "Shanghai, China",
+        "Provider": "ChinaNet"
+    },
+    "116.228.111.18": {
+        "DNS": "116.228.111.18",
+        "Location": "Shanghai, China",
+        "Provider": "ChinaNet"
+    },
     "8.8.8.8": {
         "DNS": "8.8.8.8",
         "Location": "Mountain View CA, United States",
