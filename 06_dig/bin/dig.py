@@ -229,14 +229,14 @@ def process_output(output_result, output_formats, output_deduplicated=False, out
             output_result_txt[hostname] = str()
             for dns_server in output_result[hostname].keys():
                     output_dict_txt = output_result[hostname][dns_server]
+                    if ((output_dict_txt["Result"].startswith("Exception")) and (not output_exception)):
+                        continue
                     if ((output_dict_txt["Result"] in output_list_txt) and output_deduplicated):
                         continue
                     else:
                         output_result_txt[hostname] = "{:}{:}, ".format(output_result_txt[hostname], output_dict_txt["Result"])
                         output_list_txt.append(output_dict_txt["Result"])
                     # Ignore Exception in result: txt
-                    if ((output_dict_txt["Result"].startswith("Exception")) and (not output_exception)):
-                        continue
                 # output_result_txt[hostname] = output_hostname_content_txt
             if output_result_txt[hostname] == "":
                 output_result_txt[hostname] = "{:}{:}".format(hostname, "No Result.")
@@ -285,11 +285,11 @@ if __name__ == "__main__":
     arg_parser.add_argument("-s", "--save", action="store_true", help="(Unsupported now)\nSave output with specific format as file with filename same as hostnames.")
     arg_parser.add_argument("-d", "--deduplicate", action="store_true", help="Remove the duplicated values in result with txt format.")
     arg_parser.add_argument("-p", "--processing", action="store_true", help="Display the processing ")
-    arg_parser.add_argument("-e", "--exception", action="store_false", help="Include exception in result with txt format.")
+    arg_parser.add_argument("-e", "--exception", action="store_true", help="Include exception in result with txt format.")
     arg_parser.add_argument("-v", "--version", action="version", version="akdig v0.1-Alpha")
     args = arg_parser.parse_args()
     # __DEBUG_FLAG__: inputs
-    # args = arg_parser.parse_args("-i www.akamai.com -o csv -t CNAME".split())
+    # args = arg_parser.parse_args("-i www.akamai.com -o txt".split())
 
     # Get all the hostnames
     if args.processing:
@@ -305,9 +305,9 @@ if __name__ == "__main__":
         # Save to file or not
         if args.save:
             # Save to file if true
-            process_result = process_output_file(output_result=output_result, output_formats=args.output, output_deduplicate=args.deduplicate)
+            process_result = process_output_file(output_result=output_result, output_formats=args.output, output_deduplicate=args.deduplicate, output_exception=args.exception)
             process_result_json = json.dumps(process_result, ensure_ascii=False, indent=4)
             print(process_result_json)
         else:
             # Or use standard output
-            process_output_std(output_result=output_result, output_formats=args.output, output_deduplicate=args.deduplicate)
+            process_output_std(output_result=output_result, output_formats=args.output, output_deduplicate=args.deduplicate, output_exception=args.exception)
