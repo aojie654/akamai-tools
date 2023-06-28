@@ -164,17 +164,20 @@ python3 --version
 
 | 参数           | 说明                                                           | 样例                                                 |
 | :------------- | :------------------------------------------------------------- | :--------------------------------------------------- |
-| 无 / h / help  | 显示帮助                                                       |                                                      |
-| i / input      | 对 -i 之后的内容作为输入进行查询.                              | -i www.akamai.com                                    |
+| h / help       | 显示帮助                                                       |                                                      |
+| i / inputs      | 对 -i 之后的内容作为输入进行查询.                              | -i www.akamai.com                                    |
 |                | 多个值之间以空格分隔.                                          | -i www.akamai.com www.akamai.cn                      |
-| f / file       | (暂未完成) 以文件作为输入进行查询, 并将查询结果追加到该文件内. | -f /Users/user/iptest-1.txt                          |
+| f / files       | (暂未完成) 以文件作为输入进行查询, 并将查询结果追加到该文件内. | -f /Users/user/iptest-1.txt                          |
 |                | 多个文件名之间以空格分隔.                                      | -f /Users/user/iptest-1.txt /Users/user/iptest-2.txt |
-| t / type       | 输出格式, 支持 json/csv/txt                                    | -t csv                                               |
-|                | 多个 DNS 以空格分割, 缺省时为 json.                              | -t csv txt json                                      |
-| d / dedulicate | 查询结果去重, 仅对 txt 格式输出有效                            | -d                                                   |
+| o / output     | 输出格式, 支持 json/csv/txt                                    | -o csv                                               |
+|                | 多个输出格式以空格分割, 缺省时为 json.                            | -o csv txt json                                      |
+| t / type       | 查询记录类型. 默认为 A 记录                                    | -t CNAME                                             |
 | s / save       | (暂未完成) 保存至与域名和输出格式向对应的文件.                 | -s                                                   |
 |                | 以参数为`-i www.akamai.com -o csv, txt` 为例, 输出文件为:      |                                                      |
 |                | www.akamai.com.csv 和 www.akamai.com.txt                       |                                                      |
+| d / dedulicate | 查询结果去重, 仅对 txt 格式输出有效                            | -d                                                   |
+| p / processing | 显示当前进度                                                   | -p                                                   |
+| e / exception  | 显示查询过程中的异常提示. 仅当输出格式为 txt 时有效            | -p                                                   |
 | v / version    | 查看 dig 版本信息                                              |                                                      |
 
 ## 0x04. 样例
@@ -183,30 +186,114 @@ python3 --version
   - 输入:
 
     ``` shell
-    akdig -i www.example.com
+    akdig -i www.akamai.com www.akamai.com.cn
     ```
 
   - 输出:
 
     ``` shell
-    Working on hostname: www.example.com of DNS: 127.0.0.1, result: 93.184.216.34
-    Working on hostname: www.example.com of DNS: 8.8.8.8, result: 93.184.216.34
 
-        ====> Result:
+    ====> Result:
         {
         "json": {
-            "www.example.com": {
+            "www.akamai.com": {
                 "127.0.0.1": {
                     "DNS": "127.0.0.1",
                     "Location": "Local",
                     "Provider": "Local ISP",
-                    "Result": "93.184.216.34"
+                    "Result": "Exception: The resolution lifetime expired after 1.104 seconds: Server 127.0.0.1 UDP port 53 answered The DNS operation timed out."
+                },
+                "180.168.255.118": {
+                    "DNS": "180.168.255.118",
+                    "Location": "Shanghai, China",
+                    "Provider": "ChinaNet",
+                    "Result": "106.4.158.41"
+                },
+                "116.228.111.18": {
+                    "DNS": "116.228.111.18",
+                    "Location": "Shanghai, China",
+                    "Provider": "ChinaNet",
+                    "Result": "106.4.158.41"
                 },
                 "8.8.8.8": {
                     "DNS": "8.8.8.8",
                     "Location": "Mountain View CA, United States",
                     "Provider": "Google",
-                    "Result": "93.184.216.34"
+                    "Result": "61.147.221.40"
+                }
+            },
+            "www.akamai.com.cn": {
+                "127.0.0.1": {
+                    "DNS": "127.0.0.1",
+                    "Location": "Local",
+                    "Provider": "Local ISP",
+                    "Result": "Exception: The resolution lifetime expired after 1.105 seconds: Server 127.0.0.1 UDP port 53 answered The DNS operation timed out."
+                },
+                "180.168.255.118": {
+                    "DNS": "180.168.255.118",
+                    "Location": "Shanghai, China",
+                    "Provider": "ChinaNet",
+                    "Result": "Exception: The DNS query name does not exist: www.akamai.com.cn."
+                },
+                "116.228.111.18": {
+                    "DNS": "116.228.111.18",
+                    "Location": "Shanghai, China",
+                    "Provider": "ChinaNet",
+                    "Result": "Exception: The DNS query name does not exist: www.akamai.com.cn."
+                },
+                "8.8.8.8": {
+                    "DNS": "8.8.8.8",
+                    "Location": "Mountain View CA, United States",
+                    "Provider": "Google",
+                    "Result": "Exception: The DNS query name does not exist: www.akamai.com.cn."
+                }
+            }
+        }
+    }
+    ```
+
+- 显示查询进度
+  - 输入:
+
+    ``` shell
+    akdig -i www.akamai.com -p
+    ```
+
+  - 输出:
+
+    ``` shell
+    Working on hostname: www.akamai.com of DNS: 127.0.0.1, result: Exception: The resolution lifetime expired after 1.106 seconds: Server 127.0.0.1 UDP port 53 answered The DNS operation timed out.
+    Working on hostname: www.akamai.com of DNS: 180.168.255.118, result: 106.4.158.41
+    Working on hostname: www.akamai.com of DNS: 116.228.111.18, result: 61.147.221.40
+    Working on hostname: www.akamai.com of DNS: 8.8.8.8, result: 61.147.221.40
+
+        ====> Result:
+        {
+        "json": {
+            "www.akamai.com": {
+                "127.0.0.1": {
+                    "DNS": "127.0.0.1",
+                    "Location": "Local",
+                    "Provider": "Local ISP",
+                    "Result": "Exception: The resolution lifetime expired after 1.106 seconds: Server 127.0.0.1 UDP port 53 answered The DNS operation timed out."
+                },
+                "180.168.255.118": {
+                    "DNS": "180.168.255.118",
+                    "Location": "Shanghai, China",
+                    "Provider": "ChinaNet",
+                    "Result": "106.4.158.41"
+                },
+                "116.228.111.18": {
+                    "DNS": "116.228.111.18",
+                    "Location": "Shanghai, China",
+                    "Provider": "ChinaNet",
+                    "Result": "61.147.221.40"
+                },
+                "8.8.8.8": {
+                    "DNS": "8.8.8.8",
+                    "Location": "Mountain View CA, United States",
+                    "Provider": "Google",
+                    "Result": "61.147.221.40"
                 }
             }
         }
@@ -217,25 +304,24 @@ python3 --version
   - 输入:
 
     ``` shell
-    akdig -i www.example.com -o csv txt
+    akdig -i www.akamai.com -o csv txt
     ```
 
   - 输出:
 
     ``` shell
-    Working on hostname: www.example.com of DNS: 127.0.0.1, result: 93.184.216.34
-    Working on hostname: www.example.com of DNS: 8.8.8.8, result: 93.184.216.34
-
         ====> Result:
         {
         "csv": {
-            "www.example.com": [
-                "DNS: 127.0.0.1, Location: Local, Provider: Local ISP, Result: 93.184.216.34",
-                "DNS: 8.8.8.8, Location: Mountain View CA, United States, Provider: Google, Result: 93.184.216.34"
+            "www.akamai.com": [
+                "DNS: 127.0.0.1, Location: Local, Provider: Local ISP, Result: Exception: The resolution lifetime expired after 1.103 seconds: Server 127.0.0.1 UDP port 53 answered The DNS operation timed out.",
+                "DNS: 180.168.255.118, Location: Shanghai, China, Provider: ChinaNet, Result: 106.4.158.41",
+                "DNS: 116.228.111.18, Location: Shanghai, China, Provider: ChinaNet, Result: 106.4.158.41",
+                "DNS: 8.8.8.8, Location: Mountain View CA, United States, Provider: Google, Result: 61.147.221.40"
             ]
         },
         "txt": {
-            "www.example.com": "93.184.216.34, 93.184.216.34, "
+            "www.akamai.com": "106.4.158.41, 106.4.158.41, 61.147.221.40, "
         }
     }
     ```
@@ -244,19 +330,35 @@ python3 --version
   - 输入:
 
     ``` shell
-    akdig -i www.example.com -o txt -d
+    akdig -i www.akamai.com -o txt -d
     ```
 
   - 输出:
 
     ``` shell
-    Working on hostname: www.example.com of DNS: 127.0.0.1, result: 93.184.216.34
-    Working on hostname: www.example.com of DNS: 8.8.8.8, result: 93.184.216.34
 
         ====> Result:
         {
         "txt": {
-            "www.example.com": "93.184.216.34, "
+            "www.akamai.com": "106.4.158.41, 61.147.221.40, "
+        }
+    }
+    ```
+
+- txt 显示查询异常:
+  - 输入:
+
+    ``` shell
+    akdig -i www.akamai.com -o txt -e
+    ```
+
+  - 输出:
+
+    ``` shell
+        ====> Result:
+        {
+        "txt": {
+            "www.akamai.com": "Exception: The resolution lifetime expired after 1.104 seconds: Server 127.0.0.1 UDP port 53 answered The DNS operation timed out., 106.4.158.41, 61.147.221.40, 61.147.221.40, "
         }
     }
     ```

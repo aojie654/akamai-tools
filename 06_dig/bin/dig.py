@@ -13,7 +13,8 @@ from pathlib import Path
 from dns import resolver
 
 # Initial path of root, filename and path of input
-path_root = Path(__file__).parent
+path_folder = Path(__file__).parent
+path_root = path_folder.parent
 path_conf_folder = path_root.parent.joinpath("conf")
 filename_dns = "dns.json"
 path_dns_input = path_conf_folder.joinpath(filename_dns)
@@ -276,6 +277,13 @@ def process_output_file(output_result, output_formats, output_deduplicate=False)
     return save_result
 
 
+def load_version():
+    path_file_version = path_folder.joinpath("version")
+    with open(file=path_file_version, mode="r", encoding="utf-8", errors="ignore") as file_obj_version:
+        file_content_version = file_obj_version.read()
+        info_version = file_content_version
+        return info_version
+
 if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(prog="akdig", description="Resolve the hostnames with multiple DNS.")
     arg_parser.add_argument("-i", "--inputs", type=str, nargs="+", help="Use hostnames as input, split with white space.")
@@ -286,7 +294,7 @@ if __name__ == "__main__":
     arg_parser.add_argument("-d", "--deduplicate", action="store_true", help="Remove the duplicated values in result with txt format.")
     arg_parser.add_argument("-p", "--processing", action="store_true", help="Display the processing ")
     arg_parser.add_argument("-e", "--exception", action="store_true", help="Include exception in result with txt format.")
-    arg_parser.add_argument("-v", "--version", action="version", version="akdig v0.1-Alpha")
+    arg_parser.add_argument("-v", "--version", action="version", version=load_version())
     args = arg_parser.parse_args()
     # __DEBUG_FLAG__: inputs
     # args = arg_parser.parse_args("-i www.akamai.com -o txt".split())
