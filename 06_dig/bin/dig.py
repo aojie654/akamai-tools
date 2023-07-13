@@ -15,7 +15,7 @@ from dns import resolver
 # Initial path of root, filename and path of input
 path_folder = Path(__file__).parent
 path_root = path_folder.parent
-path_conf_folder = path_root.parent.joinpath("conf")
+path_conf_folder = path_root.joinpath("conf")
 filename_dns = "dns.json"
 path_dns_input = path_conf_folder.joinpath(filename_dns)
 path_input_folder = path_conf_folder
@@ -240,7 +240,7 @@ def process_output(output_result, output_formats, output_deduplicated=False, out
                     # Ignore Exception in result: txt
                 # output_result_txt[hostname] = output_hostname_content_txt
             if output_result_txt[hostname] == "":
-                output_result_txt[hostname] = "{:}{:}".format(hostname, "No Result.")
+                output_result_txt[hostname] = "{:}".format("NXDOMAIN")
         output_result_dict["txt"] = output_result_txt
     if "json" in output_formats:
         output_result_json = output_result
