@@ -251,23 +251,26 @@ def process_output(output_result, output_formats, output_deduplicated=False, out
 
 def process_output_std(output_result, output_formats, output_deduplicate=False, output_exception=False):
 
-    output_result = process_output(output_result, output_formats=output_formats, output_deduplicated=output_deduplicate, output_exception=output_exception)
-    if "csv" in output_formats:
-        output_result_csv = dict()
-        for hostname in output_result["csv"].keys():
-            output_result_csv[hostname] = list()
-            for output_key in output_result["csv"][hostname].keys():
-                    output_dict_t = output_result["csv"][hostname][output_key]
-                    output_hostname_content_csv = "DNS: {:}, Location: {:}, Provider: {:}, Result: {:}".format(
-                        output_key, output_dict_t["Location"], output_dict_t["Provider"], output_dict_t["Result"])
-                    output_result_csv[hostname].append(output_hostname_content_csv)
-        output_result["csv"] = output_result_csv
-    output_result_json = json.dumps(output_result, ensure_ascii=False, indent=4)
-    print_msg = """
-    ====> Result:
-    {:}
-    """.format(output_result_json)
-    print(print_msg)
+    if output_formats == "none":
+        pass
+    else:
+        output_result = process_output(output_result, output_formats=output_formats, output_deduplicated=output_deduplicate, output_exception=output_exception)
+        if "csv" in output_formats:
+            output_result_csv = dict()
+            for hostname in output_result["csv"].keys():
+                output_result_csv[hostname] = list()
+                for output_key in output_result["csv"][hostname].keys():
+                        output_dict_t = output_result["csv"][hostname][output_key]
+                        output_hostname_content_csv = "DNS: {:}, Location: {:}, Provider: {:}, Result: {:}".format(
+                            output_key, output_dict_t["Location"], output_dict_t["Provider"], output_dict_t["Result"])
+                        output_result_csv[hostname].append(output_hostname_content_csv)
+            output_result["csv"] = output_result_csv
+        output_result_json = json.dumps(output_result, ensure_ascii=False, indent=4)
+        print_msg = """
+        ====> Result:
+        {:}
+        """.format(output_result_json)
+        print(print_msg)
 
 
 def process_output_file(output_result, output_formats, output_deduplicate=False):
@@ -288,11 +291,11 @@ if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(prog="akdig", description="Resolve the hostnames with multiple DNS.")
     arg_parser.add_argument("-i", "--inputs", type=str, nargs="+", help="Use hostnames as input, split with white space.")
     arg_parser.add_argument("-f", "--files", type=str, nargs="+", help="(Unsupported now)\nUse files as input, split with white space.")
-    arg_parser.add_argument("-o", "--output", type=str, nargs="+", default="json", help="Output with [json|csv|txt] format. Can be multiple values. Default: json.")
-    arg_parser.add_argument("-t", "--type", action="store", default="A", help="Resolve the specific record type. Default: A")
+    arg_parser.add_argument("-o", "--output", type=str, nargs="+", default="none", help="Output with [json|csv|txt] format. Can be multiple values. Default: json.")
+    arg_parser.add_argument("-t", "--type", action="store", default="A", help="Resolve the specific record type. Default: A.")
     arg_parser.add_argument("-s", "--save", action="store_true", help="(Unsupported now)\nSave output with specific format as file with filename same as hostnames.")
     arg_parser.add_argument("-d", "--deduplicate", action="store_true", help="Remove the duplicated values in result with txt format.")
-    arg_parser.add_argument("-p", "--processing", action="store_true", help="Display the processing ")
+    arg_parser.add_argument("-p", "--processing", action="store_false", help="Don't display the processing.")
     arg_parser.add_argument("-e", "--exception", action="store_true", help="Include exception in result with txt format.")
     arg_parser.add_argument("-v", "--version", action="version", version=load_version())
     args = arg_parser.parse_args()
