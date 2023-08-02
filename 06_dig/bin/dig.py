@@ -22,6 +22,7 @@ path_input_folder = path_conf_folder
 filename_hostnames_input = "input_hostnames.txt"
 path_hostnames_input = path_input_folder.joinpath(filename_hostnames_input)
 var_show_processing = False
+var_delimiter_character = ","
 
 
 def get_dns():
@@ -229,15 +230,15 @@ def process_output(output_result, output_formats, output_deduplicated=False, out
             output_list_txt = list()
             output_result_txt[hostname] = str()
             for dns_server in output_result[hostname].keys():
-                    output_dict_txt = output_result[hostname][dns_server]
-                    if ((output_dict_txt["Result"].startswith("Exception")) and (not output_exception)):
-                        continue
-                    if ((output_dict_txt["Result"] in output_list_txt) and output_deduplicated):
-                        continue
-                    else:
-                        output_result_txt[hostname] = "{:}{:}, ".format(output_result_txt[hostname], output_dict_txt["Result"])
-                        output_list_txt.append(output_dict_txt["Result"])
-                    # Ignore Exception in result: txt
+                output_dict_txt = output_result[hostname][dns_server]
+                if ((output_dict_txt["Result"].startswith("Exception")) and (not output_exception)):
+                    continue
+                if ((output_dict_txt["Result"] in output_list_txt) and output_deduplicated):
+                    continue
+                else:
+                    output_result_txt[hostname] = "{:}{:}{:}".format(output_result_txt[hostname], output_dict_txt["Result"], var_delimiter_character)
+                    output_list_txt.append(output_dict_txt["Result"])
+                # Ignore Exception in result: txt
                 # output_result_txt[hostname] = output_hostname_content_txt
             if output_result_txt[hostname] == "":
                 output_result_txt[hostname] = "{:}".format("NXDOMAIN")
@@ -260,10 +261,10 @@ def process_output_std(output_result, output_formats, output_deduplicate=False, 
             for hostname in output_result["csv"].keys():
                 output_result_csv[hostname] = list()
                 for output_key in output_result["csv"][hostname].keys():
-                        output_dict_t = output_result["csv"][hostname][output_key]
-                        output_hostname_content_csv = "DNS: {:}, Location: {:}, Provider: {:}, Result: {:}".format(
-                            output_key, output_dict_t["Location"], output_dict_t["Provider"], output_dict_t["Result"])
-                        output_result_csv[hostname].append(output_hostname_content_csv)
+                    output_dict_t = output_result["csv"][hostname][output_key]
+                    output_hostname_content_csv = "DNS: {:}, Location: {:}, Provider: {:}, Result: {:}".format(
+                        output_key, output_dict_t["Location"], output_dict_t["Provider"], output_dict_t["Result"])
+                    output_result_csv[hostname].append(output_hostname_content_csv)
             output_result["csv"] = output_result_csv
         output_result_json = json.dumps(output_result, ensure_ascii=False, indent=4)
         print_msg = """
@@ -287,11 +288,13 @@ def load_version():
         info_version = file_content_version
         return info_version
 
+
 if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(prog="akdig", description="Resolve the hostnames with multiple DNS.")
     arg_parser.add_argument("-i", "--inputs", type=str, nargs="+", help="Use hostnames as input, split with white space.")
     arg_parser.add_argument("-f", "--files", type=str, nargs="+", help="(Unsupported now)\nUse files as input, split with white space.")
     arg_parser.add_argument("-o", "--output", type=str, nargs="+", default="none", help="Output with [json|csv|txt] format. Can be multiple values. Default: json.")
+    arg_parser.add_argument("-c", "--character", type=str, default=",", help="Character of delimiter with output format: txt. Default: \",\".")
     arg_parser.add_argument("-t", "--type", action="store", default="A", help="Resolve the specific record type. Default: A.")
     arg_parser.add_argument("-s", "--save", action="store_true", help="(Unsupported now)\nSave output with specific format as file with filename same as hostnames.")
     arg_parser.add_argument("-d", "--deduplicate", action="store_true", help="Remove the duplicated values in result with txt format.")
@@ -302,6 +305,9 @@ if __name__ == "__main__":
     # __DEBUG_FLAG__: inputs
     # args = arg_parser.parse_args("-i www.akamai.com -o txt".split())
 
+    # Set output_delimiter
+    var_delimiter_character = args.character
+
     # Get all the hostnames
     if args.processing:
         var_show_processing = args.processing
@@ -311,7 +317,6 @@ if __name__ == "__main__":
             output_result = process_input_std(hostnames=args.inputs, dns_type=args.type)
         elif args.files:
             output_result = process_input_files(files=args.files, dns_type=args.type)
-
 
         # Save to file or not
         if args.save:
