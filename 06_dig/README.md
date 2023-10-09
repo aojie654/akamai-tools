@@ -162,23 +162,23 @@ python3 --version
 
 ## 0x03. 功能菜单
 
-| 参数           | 说明                                                           | 样例                                                 |
-| :------------- | :------------------------------------------------------------- | :--------------------------------------------------- |
-| h / help       | 显示帮助                                                       |                                                      |
-| i / inputs     | 对 -i 之后的内容作为输入进行查询.                              | -i www.akamai.com                                    |
-|                | 多个值之间以空格分隔.                                          | -i www.akamai.com www.akamai.cn                      |
-| f / files      | (暂未完成) 以文件作为输入进行查询, 并将查询结果追加到该文件内. | -f /Users/user/iptest-1.txt                          |
-|                | 多个文件名之间以空格分隔.                                      | -f /Users/user/iptest-1.txt /Users/user/iptest-2.txt |
-| o / output     | 输出格式, 支持 json/csv/txt                                    | -o csv                                               |
-|                | 多个输出格式以空格分割.                                        | -o csv txt json                                      |
-| t / type       | 查询记录类型. 默认为 A 记录                                    | -t CNAME                                             |
-| s / save       | (暂未完成) 保存至与域名和输出格式向对应的文件.                 | -s                                                   |
-|                | 以参数为`-i www.akamai.com -o csv, txt` 为例, 输出文件为:      |                                                      |
-|                | www.akamai.com.csv 和 www.akamai.com.txt                       |                                                      |
-| d / dedulicate | 查询结果去重, 仅对 txt 格式输出有效                            | -d                                                   |
-| p / processing | 不显示当前进度                                                 | -p                                                   |
-| e / exception  | 显示查询过程中的异常提示. 仅当输出格式为 txt 时有效            | -p                                                   |
-| v / version    | 查看 dig 版本信息                                              |                                                      |
+| 参数           | 说明                                                               | 样例                                                 |
+| :------------- | :----------------------------------------------------------------- | :--------------------------------------------------- |
+| h / help       | 显示帮助                                                           |                                                      |
+| i / inputs     | 对 -i 之后的内容作为输入进行查询.                                  | -i www.akamai.com                                    |
+|                | 多个值之间以空格分隔.                                              | -i www.akamai.com www.akamai.cn                      |
+| f / files      | 以文件作为输入进行查询.                                            | -f /Users/user/iptest-1.txt                          |
+|                | 多个文件名之间以空格分隔.                                          | -f /Users/user/iptest-1.txt /Users/user/iptest-2.txt |
+| o / output     | 输出格式, 支持 json/csv/txt                                        | -o csv                                               |
+|                | 多个输出格式以空格分割.                                            | -o csv txt json                                      |
+| t / type       | 查询记录类型. 默认为 A 记录                                        | -t CNAME                                             |
+| s / save       | 保存至与域名和输出格式向对应的文件.                                | -s                                                   |
+|                | 以参数为`-i www.akamai.com -t CNAME -o csv txt` 为例, 输出文件为: |                                                      |
+|                | www.akamai.com_CNAME.csv 和 www.akamai.com_CNAME.txt               |                                                      |
+| d / dedulicate | 查询结果去重, 仅对 txt 格式输出有效                                | -d                                                   |
+| p / processing | 不显示当前进度                                                     | -p                                                   |
+| e / exception  | 显示查询过程中的异常提示. 仅当输出格式为 txt 时有效                | -p                                                   |
+| v / version    | 查看 dig 版本信息                                                  |                                                      |
 
 ## 0x04. 样例
 

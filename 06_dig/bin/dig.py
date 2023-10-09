@@ -15,12 +15,12 @@ from dns import resolver
 # Initial path of root, filename and path of input
 path_folder = Path(__file__).parent
 path_root = path_folder.parent
-path_conf_folder = path_root.joinpath("conf")
+path_dir_conf = path_root.joinpath("conf")
 filename_dns = "dns.json"
-path_dns_input = path_conf_folder.joinpath(filename_dns)
-path_input_folder = path_conf_folder
+path_file_dns_input = path_dir_conf.joinpath(filename_dns)
+path_dir_input = path_dir_conf
 filename_hostnames_input = "input_hostnames.txt"
-path_hostnames_input = path_input_folder.joinpath(filename_hostnames_input)
+path_file_hostnames_input = path_dir_input.joinpath(filename_hostnames_input)
 var_show_processing = False
 var_delimiter_character = ","
 
@@ -28,7 +28,7 @@ var_delimiter_character = ","
 def get_dns():
     # Initial a dict of result and read config
     dns_dict = dict()
-    with open(file=path_dns_input, mode="r", encoding="utf-8", errors="ignore") as dns_file_obj:
+    with open(file=path_file_dns_input, mode="r", encoding="utf-8", errors="ignore") as dns_file_obj:
         dns_json = dns_file_obj.read()
         dns_dict = json.loads(dns_json)
 
@@ -40,7 +40,7 @@ def get_hostnames():
     hostnames_list = list()
 
     # Open input file, read the hostnames to list
-    with open(file=path_hostnames_input, mode="r", encoding="utf-8", errors="ignore") as obj_hostnames_input:
+    with open(file=path_file_hostnames_input, mode="r", encoding="utf-8", errors="ignore") as obj_hostnames_input:
         hostnames_list = obj_hostnames_input.readlines()
         # Remove the \n of line
         index_tmp = 0
@@ -62,7 +62,12 @@ def process_input_std(hostnames, dns_type="A"):
 
 
 def process_input_files(files, dns_type="A"):
-    output_result_files = "Result of files: {:}".format(files)
+    hostnames = list()
+    for file in files:
+        with open(file=file, mode="r", encoding="utf-8", errors="ignore") as file_obj:
+            file_lines = file_obj.read().splitlines()
+            hostnames = hostnames + file_lines
+    output_result_files = process_input_std(hostnames=hostnames, dns_type=dns_type)
 
     return output_result_files
 
@@ -221,6 +226,9 @@ def process_output(output_result, output_formats, output_deduplicated=False, out
     output_result_dict = dict()
 
     # Output with format
+    if "json" in output_formats:
+        output_result_json = output_result
+        output_result_dict["json"] = output_result_json
     if "csv" in output_formats:
         # Initial the format with csv
         output_result_dict["csv"] = output_result
@@ -243,9 +251,6 @@ def process_output(output_result, output_formats, output_deduplicated=False, out
             if output_result_txt[hostname] == "":
                 output_result_txt[hostname] = "{:}".format("NXDOMAIN")
         output_result_dict["txt"] = output_result_txt
-    if "json" in output_formats:
-        output_result_json = output_result
-        output_result_dict["json"] = output_result_json
 
     return output_result_dict
 
@@ -274,11 +279,37 @@ def process_output_std(output_result, output_formats, output_deduplicate=False, 
         print(print_msg)
 
 
-def process_output_file(output_result, output_formats, output_deduplicate=False):
+def process_output_file(output_result, output_formats, record_type, output_deduplicate=False, output_exception=False):
 
-    save_result = output_formats
+    path_dir_output = path_root.joinpath("output")
+    if Path.exists(path_dir_output):
+        pass
+    else:
+        Path.mkdir(path_dir_output)
+    output_result = process_output(output_result, output_formats=output_formats, output_deduplicated=output_deduplicate, output_exception=output_exception)
 
-    return save_result
+    for output_format in output_formats:
+        output_result_format = output_result[output_format]
+        for hostname_tmp in output_result_format.keys():
+            filename_output = "{:}_{:}.{:}".format(hostname_tmp, record_type, output_format)
+            path_file_hostname_output = path_dir_output.joinpath(filename_output)
+            output_result_format_hostname = output_result_format[hostname_tmp]
+            with open(file=path_file_hostname_output, mode="w+", encoding="utf-8", errors="ignore") as output_file_obj:
+                if output_format == "json":
+                    output_result_format_result = json.dumps(output_result_format_hostname, ensure_ascii=False, indent=4)
+                    output_file_obj.write(output_result_format_result)
+                elif output_format == "csv":
+                    csv_headers = ["DNS", "Location", "Provider", "Type",  "Result"]
+                    csv_writer = csv.DictWriter(output_file_obj, csv_headers)
+                    csv_writer.writeheader()
+                    for csv_item in output_result_format_hostname.values():
+                        csv_item["Type"] = record_type
+                        csv_writer.writerow(csv_item)
+                elif output_format == "txt":
+                    output_result_format_result = output_result_format_hostname
+                    output_file_obj.write(output_result_format_result)
+            print_msg = "OUTPUT: {:} with record type: {:} is saved to {:}".format(hostname_tmp, record_type, path_file_hostname_output)
+            print(print_msg)
 
 
 def load_version():
@@ -292,18 +323,18 @@ def load_version():
 if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(prog="akdig", description="Resolve the hostnames with multiple DNS.")
     arg_parser.add_argument("-i", "--inputs", type=str, nargs="+", help="Use hostnames as input, split with white space.")
-    arg_parser.add_argument("-f", "--files", type=str, nargs="+", help="(Unsupported now)\nUse files as input, split with white space.")
+    arg_parser.add_argument("-f", "--files", type=str, nargs="+", help="Use files as input, split with white space.")
     arg_parser.add_argument("-o", "--output", type=str, nargs="+", default="none", help="Output with [json|csv|txt] format. Can be multiple values. Default: json.")
     arg_parser.add_argument("-c", "--character", type=str, default=",", help="Character of delimiter with output format: txt. Default: \",\".")
     arg_parser.add_argument("-t", "--type", action="store", default="A", help="Resolve the specific record type. Default: A.")
-    arg_parser.add_argument("-s", "--save", action="store_true", help="(Unsupported now)\nSave output with specific format as file with filename same as hostnames.")
+    arg_parser.add_argument("-s", "--save", action="store_true", help="Save output with specific format as file with filename same as hostnames.")
     arg_parser.add_argument("-d", "--deduplicate", action="store_true", help="Remove the duplicated values in result with txt format.")
     arg_parser.add_argument("-p", "--processing", action="store_false", help="Don't display the processing.")
     arg_parser.add_argument("-e", "--exception", action="store_true", help="Include exception in result with txt format.")
     arg_parser.add_argument("-v", "--version", action="version", version=load_version())
     args = arg_parser.parse_args()
     # __DEBUG_FLAG__: inputs
-    # args = arg_parser.parse_args("-i www.akamai.com -o txt".split())
+    # args = arg_parser.parse_args("-f /Users/sao/git/akamai-tools/06_dig/output/input1.txt /Users/sao/git/akamai-tools/06_dig/output/input2.txt -t CNAME -o csv json txt -s -d".split())
 
     # Set output_delimiter
     var_delimiter_character = args.character
@@ -321,9 +352,7 @@ if __name__ == "__main__":
         # Save to file or not
         if args.save:
             # Save to file if true
-            process_result = process_output_file(output_result=output_result, output_formats=args.output, output_deduplicate=args.deduplicate, output_exception=args.exception)
-            process_result_json = json.dumps(process_result, ensure_ascii=False, indent=4)
-            print(process_result_json)
+            process_output_file(output_result=output_result, record_type=args.type, output_formats=args.output, output_deduplicate=args.deduplicate, output_exception=args.exception)
         else:
             # Or use standard output
             process_output_std(output_result=output_result, output_formats=args.output, output_deduplicate=args.deduplicate, output_exception=args.exception)

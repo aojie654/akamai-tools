@@ -13,6 +13,7 @@ log
 logs
 
 # test files
+tmp
 test
 migrations
 
@@ -68,6 +69,7 @@ Thumbs.db
 *.elf
 
 # Linker output
+output
 *.ilk
 *.map
 *.exp
