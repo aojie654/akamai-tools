@@ -394,10 +394,10 @@ if __name__ == "__main__":
     arg_parser.add_argument("-s", "--save", action="store", default=False, help="Save output with specific format as file, 'h' to same as hostname, and other to filename.")
     arg_parser.add_argument("-t", "--type", action="store", default="A", help="Resolve the specific record type. Default: A.")
     arg_parser.add_argument("-v", "--version", action="version", version=load_version())
-    # args = arg_parser.parse_args()
+    args = arg_parser.parse_args()
     # __DEBUG_FLAG__: inputs
-    args_str = "-i www.aojie654.com www.akasao.com -t CNAME -o txt csv json -d -s h"
-    args = arg_parser.parse_args(args_str.split())
+    # args_str = "-i www.aojie654.com www.akasao.com -t CNAME -o txt csv json -d -s h"
+    # args = arg_parser.parse_args(args_str.split())
 
     # Set output_delimiter
     var_delimiter_character = args.character
