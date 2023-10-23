@@ -84,15 +84,29 @@ def resolve_hostname(hostname, dns_type):
         output_result_hostname = dict()
         dns_resolver = resolver.Resolver()
         for dns_server in dns_dict.keys():
+            hostname_t = hostname
             if var_show_processing:
-                print_msg = "Working on hostname: {:} of DNS: {:}, ".format(hostname, dns_server)
+                print_msg = "Working on hostname: {:} of DNS: {:}, ".format(hostname_t, dns_server)
                 print(print_msg, end="")
             output_result_hostname[dns_server] = dns_dict[dns_server]
             dns_resolver.nameservers = [dns_server]
             try:
-                dns_response = dns_resolver.resolve(qname=hostname, rdtype=dns_type, lifetime=1)
-                if dns_response.rrset:
-                    dns_resolve_result = dns_response.rrset.to_text().split()[-1]
+                dns_resolve_result = str()
+                while True:
+                    try:
+                        dns_response = dns_resolver.resolve(qname=hostname_t, rdtype=dns_type, lifetime=1)
+                    except resolver.NoAnswer:
+                        break
+                    else:
+                        dns_resolve_result_t = dns_response.rrset.to_text().split()[-1]
+                        dns_resolve_result = "{:} : {:}".format(dns_resolve_result, dns_resolve_result_t)
+                        if (dns_type.upper() != "CNAME"):
+                            break
+                        else:
+                            hostname_t = dns_resolve_result_t
+                dns_resolve_result = dns_resolve_result[3:]
+            except resolver.LifetimeTimeout:
+                dns_resolve_result = "Exception: DNS timeout"
             except Exception as expt:
                 dns_resolve_result = "Exception: {:}".format(str(expt))
             output_result_hostname[dns_server]["Result"] = dns_resolve_result
@@ -105,77 +119,6 @@ def resolve_hostname(hostname, dns_type):
         }
 
     return output_result_hostname
-
-
-def resolve_hostname_by_dns(hostname, dns):
-    resolve_hostname_result = dict()
-
-    return resolve_hostname_result
-
-
-def output_hostname(hostname):
-    # def output_hostname(hostname, output):
-
-    # path_output_folder = path_conf_folder
-    # filename_hostnames_output_csv = "output_{:}.csv".format(hostname)
-    # path_hostnames_output_csv = path_output_folder.joinpath(filename_hostnames_output_csv)
-    # filename_hostnames_output_txt = "output_{:}.txt".format(hostname)
-    # path_hostnames_output_txt = path_output_folder.joinpath(filename_hostnames_output_txt)
-
-    # try:
-    #     output_result = "finished"
-    # except Exception as exception_t:
-    #     output_result = str(exception_t)
-
-    output_result = "Output to STR output: {:}".format(hostname)
-
-    return output_result
-
-
-def output_hostname_csv(hostname):
-    # def output_hostname_csv(hostname, output):
-    # path_output_folder = path_input_folder
-    # filename_hostnames_output = "{:}_output.csv"
-    # csv_header = [
-    #     "DNS",
-    #     "Location",
-    #     "Provider",
-    #     "Result",
-    # ]
-    # csv_writer = csv.DictWriter(fieldnames=csv_header, delimiter="|", quotechar="\"")
-    # for key_tmp in output.keys():
-    #     csv_writer.writerow(
-    #         {
-    #             csv_header[0]: output[key_tmp],
-    #         }
-    #     )
-    output_result = "Output as CSV: {:}".format(hostname)
-
-    # return
-    return output_result
-
-
-def output_hostname_txt(hostname):
-    # def output_hostname_txt(hostname, output):
-
-    output_result = "Output as TXT: {:}".format(hostname)
-
-    return output_result
-
-
-def output_hostname_txt_deduplicate(output_result):
-
-    print("Deduplicate values in txt.")
-
-    return output_result
-
-
-def output_hostname_json(hostname):
-    # def output_hostname_json(hostname, output):
-
-    output_result = "Output as JSON: {:}".format(hostname)
-
-    return output_result
 
 
 def process_output(output_result, output_formats, output_deduplicated=False, output_exception=True):
@@ -282,7 +225,7 @@ def process_output_std(output_result, output_formats, output_deduplicate=False, 
         {:}
         """.format(output_result_json)
         print(print_msg)
-    
+
     return
 
 
@@ -298,7 +241,8 @@ def process_output_file(output_result, record_type, filename_output, output_form
     if filename_output.lower() == "h":
         process_output_file_hostnames(output_result=output_result, record_type=record_type, path_dir_output=path_dir_output, output_formats=output_formats)
     else:
-        process_output_file_single(output_result=output_result, record_type=record_type, filename_output=filename_output, path_dir_output=path_dir_output, output_formats=output_formats)
+        process_output_file_single(output_result=output_result, record_type=record_type, filename_output=filename_output,
+                                   path_dir_output=path_dir_output, output_formats=output_formats)
 
     return
 
@@ -338,6 +282,7 @@ def process_output_file_hostnames(output_result, record_type, path_dir_output, o
             print(print_msg)
 
     return
+
 
 def process_output_file_single(output_result, record_type, filename_output, path_dir_output, output_formats):
     # Search each format
@@ -395,10 +340,12 @@ if __name__ == "__main__":
     arg_parser.add_argument("-s", "--save", action="store", default=False, help="Save output with specific format as file, 'h' to same as hostname, and other to filename.")
     arg_parser.add_argument("-t", "--type", action="store", default="A", help="Resolve the specific record type. Default: A.")
     arg_parser.add_argument("-v", "--version", action="version", version=load_version())
-    args = arg_parser.parse_args()
+    # args = arg_parser.parse_args()
     # __DEBUG_FLAG__: inputs
+    args_str = "-i www.ctrip.com -t CNAME -o csv"
+    # args_str = "-i www.ctrip.com -t CNAME -o txt -d"
     # args_str = "-i www.aojie654.com www.akasao.com -t CNAME -o txt csv json -d -s h"
-    # args = arg_parser.parse_args(args_str.split())
+    args = arg_parser.parse_args(args_str.split())
 
     # Set output_delimiter
     var_delimiter_character = args.character
