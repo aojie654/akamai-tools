@@ -1,23 +1,18 @@
 {
-    "127.0.0.1": {
-        "DNS": "127.0.0.1",
-        "Location": "Local",
-        "Provider": "Local ISP"
+    "208.67.222.220": {
+        "DNS": "208.67.222.220",
+        "Location": "San Francisco CA, United States",
+        "Provider": "OpenDNS"
     },
     "8.8.8.8": {
         "DNS": "8.8.8.8",
         "Location": "Mountain View CA, United States",
-        "Provider": "Google"
+        "Provider": " Google"
     },
     "9.9.9.9": {
         "DNS": "9.9.9.9",
         "Location": "Berkeley, US",
         "Provider": "Quad9"
-    },
-    "208.67.222.220": {
-        "DNS": "208.67.222.220",
-        "Location": "San Francisco CA, United States",
-        "Provider": "OpenDNS"
     },
     "12.121.117.201": {
         "DNS": "12.121.117.201",
@@ -27,42 +22,42 @@
     "204.117.214.10": {
         "DNS": "204.117.214.10",
         "Location": "Canoga Park, CA, United States",
-        "Provider": "Sprint"
+        "Provider": " Sprint"
     },
-    "8.26.56.26": {
-        "DNS": "8.26.56.26",
-        "Location": "Dothan, United States",
-        "Provider": "Comodo Secure DNS"
+    "64.6.64.6": {
+        "DNS": "64.6.64.6",
+        "Location": "Virginia, United States",
+        "Provider": "VeriSign Global Registry Services"
     },
     "149.112.112.112": {
         "DNS": "149.112.112.112",
         "Location": "San Francisco, US",
         "Provider": "Quad9"
     },
-    "134.153.233.140": {
-        "DNS": "134.153.233.140",
-        "Location": "St. John's, Canada",
-        "Provider": "Memorial University of Newfoundland"
+    "208.91.112.53": {
+        "DNS": "208.91.112.53",
+        "Location": "Burnaby, Canada",
+        "Provider": "Fortinet Inc"
     },
     "195.46.39.39": {
         "DNS": "195.46.39.39",
         "Location": "Yekaterinburg, Russian Federation",
-        "Provider": "Skydns"
+        "Provider": " Skydns"
     },
     "5.11.11.5": {
         "DNS": "5.11.11.5",
         "Location": "Cullinan, South Africa",
         "Provider": "Liquid Telecommunications Ltd"
     },
-    "185.107.80.84": {
-        "DNS": "185.107.80.84",
-        "Location": "Roosendaal, Netherlands",
-        "Provider": "NForce Entertainment B.V."
+    "188.207.200.113": {
+        "DNS": "188.207.200.113",
+        "Location": "The Hague, Netherlands",
+        "Provider": "KPN"
     },
-    "163.172.107.158": {
-        "DNS": "163.172.107.158",
+    "80.67.169.40": {
+        "DNS": "80.67.169.40",
         "Location": "Paris, France",
-        "Provider": "Online S.A.S."
+        "Provider": "Association Gitoyen"
     },
     "212.230.255.1": {
         "DNS": "212.230.255.1",
@@ -79,35 +74,35 @@
         "Location": "Innsbruck, Austria",
         "Provider": "nemox.net"
     },
-    "194.145.240.6": {
-        "DNS": "194.145.240.6",
-        "Location": "Manchester, United Kingdom",
-        "Provider": "Ancar B Technologies Ltd"
+    "37.209.219.30": {
+        "DNS": "37.209.219.30",
+        "Location": "Byfleet, United Kingdom",
+        "Provider": "4D Data Centres Ltd"
     },
     "80.196.100.209": {
         "DNS": "80.196.100.209",
         "Location": "Copenhagen, Denmark",
         "Provider": "Tele Danmark"
     },
-    "194.172.160.4": {
-        "DNS": "194.172.160.4",
-        "Location": "Oberhausen, Germany",
-        "Provider": "Verizon Deutschland GmbH"
+    "82.96.64.2": {
+        "DNS": "82.96.64.2",
+        "Location": "Saarland, Germany",
+        "Provider": "Probe Networks"
     },
-    "148.235.82.66": {
-        "DNS": "148.235.82.66",
-        "Location": "Tlalnepantla, Mexico",
-        "Provider": "Uninet S.A. de C.V."
+    "200.56.224.11": {
+        "DNS": "200.56.224.11",
+        "Location": "Monterrey, Mexico",
+        "Provider": "Marcatel Com"
     },
-    "200.248.178.54": {
-        "DNS": "200.248.178.54",
-        "Location": "Santa Cruz do Sul, Brazil",
-        "Provider": "Claro S.A"
+    "187.6.84.178": {
+        "DNS": "187.6.84.178",
+        "Location": "Rio de Janeiro, Brazil",
+        "Provider": "Sergio Bermudes Advogados"
     },
-    "103.26.250.4": {
-        "DNS": "103.26.250.4",
-        "Location": "Kuala Lumpur, Malaysia",
-        "Provider": "Ohana Communications Sdn Bhd"
+    "211.25.206.147": {
+        "DNS": "211.25.206.147",
+        "Location": "Shah Alam, Malaysia",
+        "Provider": "TT Dotcom Sdn Bhd"
     },
     "1.1.1.1": {
         "DNS": "1.1.1.1",
@@ -119,15 +114,10 @@
         "Location": "Melbourne, Australia",
         "Provider": "Pacific Internet"
     },
-    "223.165.64.97": {
-        "DNS": "223.165.64.97",
-        "Location": "Auckland, New Zealand",
-        "Provider": "SiteHost"
-    },
-    "202.56.128.30": {
-        "DNS": "202.56.128.30",
+    "139.59.219.245": {
+        "DNS": "139.59.219.245",
         "Location": "Singapore",
-        "Provider": "T-systems Singapore Pte"
+        "Provider": "DigitalOcean LLC"
     },
     "164.124.101.2": {
         "DNS": "164.124.101.2",
@@ -139,15 +129,15 @@
         "Location": "Hangzhou, China",
         "Provider": "Aliyun Computing Co. Ltd"
     },
-    "212.175.192.114": {
-        "DNS": "212.175.192.114",
-        "Location": "Izmir, Turkey",
-        "Provider": "Turk Telekom"
+    "31.7.37.37": {
+        "DNS": "31.7.37.37",
+        "Location": "Antalya, Turkey",
+        "Provider": "Teknet Yazlim"
     },
-    "103.99.150.10": {
-        "DNS": "103.99.150.10",
+    "103.194.240.35": {
+        "DNS": "103.194.240.35",
         "Location": "Coimbatore, India",
-        "Provider": "Skylink Fibernet Private Limited"
+        "Provider": "AirDesign Broadcast Media Pvt Ltd"
     },
     "209.150.154.1": {
         "DNS": "209.150.154.1",
@@ -164,9 +154,9 @@
         "Location": "Ireland",
         "Provider": "Daniel Cid"
     },
-    "103.157.237.34": {
-        "DNS": "103.157.237.34",
-        "Location": "Kaharole, Bangladesh",
-        "Provider": "Md Masud Rana Roni"
+    "114.130.5.6": {
+        "DNS": "114.130.5.6",
+        "Location": "Dhaka, Bangladesh",
+        "Provider": "Mango Teleservices Limited"
     }
 }

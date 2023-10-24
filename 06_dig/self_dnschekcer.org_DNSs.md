@@ -4,7 +4,7 @@
 - Lines: 1039 - 1069
 - Regex:
   - Match: `^<tr.+data-location="([^"]+)".+data-provider="([^"]+)".+(\n.+){2}data-clipboardtext="([^"]+)".+(\n.+){4}`
-  - Replacement: `Location: $1\nProvider: $2\nDNS: $4\n`
+  - Replacement: `"$4":{"Location": "$1","Provider": "$2","DNS": "$4"},`
 - Result:
 
 ```

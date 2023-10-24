@@ -171,16 +171,16 @@ python3 --version
 |                | 多个文件名之间以空格分隔.                                                                       | -f /Users/user/iptest-1.txt /Users/user/iptest-2.txt |
 | o / output     | 输出格式, 支持 json/csv/txt                                                                     | -o csv                                               |
 |                | 多个输出格式以空格分割.                                                                         | -o csv txt json                                      |
-| t / type       | 查询记录类型. 默认为 A 记录                                                                     | -t CNAME                                             |
+| t / type       | 查询记录类型. 默认为 A 记录.                                                                    | -t CNAME                                             |
 | s / save       | 保存结果至文件. 当值为 h 时保存为与域名对应的文件, 其他值则为文件名.                            | -s h                                                 |
 |                | 以 `-i www.akamai.com -t CNAME -o csv txt -s h` 为例, 输出文件为:                               |                                                      |
 |                | www.akamai.com_CNAME.csv 和 www.akamai.com_CNAME.txt                                            |                                                      |
 |                | 以 `-i www.akamai.com  www.akamai.cn -t CNAME -o csv txt -s 20231010_example` 为例, 输出文件为: | -s 20231010_example                                  |
-|                | 20231010_example_CNAME.csv 和 20231010_example_CNAME.txt                                            |                                                      |
-| d / dedulicate | 查询结果去重, 仅对 txt 格式输出有效                                                             | -d                                                   |
-| p / processing | 不显示当前进度                                                                                  | -p                                                   |
-| e / exception  | 显示查询过程中的异常提示. 仅当输出格式为 txt 时有效                                             | -p                                                   |
-| v / version    | 查看 dig 版本信息                                                                               |                                                      |
+|                | 20231010_example_CNAME.csv 和 20231010_example_CNAME.txt                                        |                                                      |
+| d / dedulicate | 查询结果去重, 仅对 txt 格式输出有效.                                                            | -d                                                   |
+| p / processing | 显示当前进度.                                                                                   | -p                                                   |
+| e / exception  | 显示查询过程中的异常提示.                                                                       | -p                                                   |
+| v / version    | 查看 dig 版本信息.                                                                              |                                                      |
 
 ## 0x04. 样例
 

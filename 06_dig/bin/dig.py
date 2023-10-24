@@ -25,6 +25,17 @@ var_show_processing = False
 var_delimiter_character = ","
 
 
+def get_full_class_name(expt):
+    module = expt.__class__.__module__
+    if module is None or module == str.__class__.__module__:
+        expt_name = expt.__class__.__name__
+        return
+    else:
+        expt_name = module + '.' + expt.__class__.__name__
+
+    return expt_name
+
+
 def get_dns():
     # Initial a dict of result and read config
     dns_dict = dict()
@@ -51,7 +62,7 @@ def get_hostnames():
     return hostnames_list
 
 
-def process_input_std(hostnames, dns_type="A"):
+def process_input_std(hostnames, dns_type, output_exception):
     # Resolve the hostnames
     output_result_hostnames = dict()
 
@@ -61,23 +72,23 @@ def process_input_std(hostnames, dns_type="A"):
             continue
         else:
             pass
-        output_result_hostnames[hostname] = resolve_hostname(hostname=hostname, dns_type=dns_type)
+        output_result_hostnames[hostname] = resolve_hostname(hostname=hostname, dns_type=dns_type, output_exception=output_exception)
 
     return output_result_hostnames
 
 
-def process_input_files(files, dns_type="A"):
+def process_input_files(files, dns_type, output_exception):
     hostnames = list()
     for file in files:
         with open(file=file, mode="r", encoding="utf-8", errors="ignore") as file_obj:
             file_lines = file_obj.read().splitlines()
             hostnames = hostnames + file_lines
-    output_result_files = process_input_std(hostnames=hostnames, dns_type=dns_type)
+    output_result_files = process_input_std(hostnames=hostnames, dns_type=dns_type, output_exception=output_exception)
 
     return output_result_files
 
 
-def resolve_hostname(hostname, dns_type):
+def resolve_hostname(hostname, dns_type, output_exception):
     try:
         # Get DNS dict
         dns_dict = get_dns()
@@ -88,7 +99,7 @@ def resolve_hostname(hostname, dns_type):
             if var_show_processing:
                 print_msg = "Working on hostname: {:} of DNS: {:}, ".format(hostname_t, dns_server)
                 print(print_msg, end="")
-            output_result_hostname[dns_server] = dns_dict[dns_server]
+            output_result_hostname_t = dns_dict[dns_server]
             dns_resolver.nameservers = [dns_server]
             try:
                 dns_resolve_result = str()
@@ -105,23 +116,30 @@ def resolve_hostname(hostname, dns_type):
                         else:
                             hostname_t = dns_resolve_result_t
                 dns_resolve_result = dns_resolve_result[3:]
-            except resolver.LifetimeTimeout:
-                dns_resolve_result = "Exception: DNS timeout"
             except Exception as expt:
-                dns_resolve_result = "Exception: {:}".format(str(expt))
-            output_result_hostname[dns_server]["Result"] = dns_resolve_result
-            if var_show_processing:
-                print_msg = "result: {:}".format(dns_resolve_result)
-                print(print_msg)
+                dns_resolve_result = "Exception: {:}".format(get_full_class_name(expt))
+                if output_exception:
+                    pass
+                else:
+                    continue
+            finally:
+                if var_show_processing:
+                    print_msg = "result: {:}".format(dns_resolve_result)
+                    print(print_msg)
+            output_result_hostname_t["Result"] = dns_resolve_result
+            output_result_hostname[dns_server] = output_result_hostname_t
     except Exception as expt:
-        output_result_hostname = {
-            "Exception": "{:}, {:}".format(hostname, expt),
-        }
+        if output_exception:
+            output_result_hostname = {
+                "Exception": "{:}, {:}".format(hostname, get_full_class_name(expt)),
+            }
+        else:
+            pass
 
     return output_result_hostname
 
 
-def process_output(output_result, output_formats, output_deduplicated=False, output_exception=True):
+def process_output(output_result, output_formats, output_deduplicated, ):
     """
     output result like:
     {
@@ -187,28 +205,22 @@ def process_output(output_result, output_formats, output_deduplicated=False, out
             output_result_txt[hostname] = str()
             for dns_server in output_result[hostname].keys():
                 output_dict_txt = output_result[hostname][dns_server]
-                if ((output_dict_txt["Result"].startswith("Exception")) and (not output_exception)):
-                    continue
                 if ((output_dict_txt["Result"] in output_list_txt) and output_deduplicated):
                     continue
                 else:
                     output_result_txt[hostname] = "{:}{:}{:}".format(output_result_txt[hostname], output_dict_txt["Result"], var_delimiter_character)
                     output_list_txt.append(output_dict_txt["Result"])
-                # Ignore Exception in result: txt
-                # output_result_txt[hostname] = output_hostname_content_txt
-            if output_result_txt[hostname] == "":
-                output_result_txt[hostname] = "{:}".format("NXDOMAIN")
         output_result_dict["txt"] = output_result_txt
 
     return output_result_dict
 
 
-def process_output_std(output_result, output_formats, output_deduplicate=False, output_exception=False):
+def process_output_std(output_result, output_formats, output_deduplicate):
 
     if output_formats == "none":
         pass
     else:
-        output_result = process_output(output_result, output_formats=output_formats, output_deduplicated=output_deduplicate, output_exception=output_exception)
+        output_result = process_output(output_result, output_formats=output_formats, output_deduplicated=output_deduplicate)
         if "csv" in output_formats:
             output_result_csv = dict()
             for hostname in output_result["csv"].keys():
@@ -229,8 +241,8 @@ def process_output_std(output_result, output_formats, output_deduplicate=False, 
     return
 
 
-def process_output_file(output_result, record_type, filename_output, output_formats,  output_deduplicate=False, output_exception=False):
-    output_result = process_output(output_result, output_formats=output_formats, output_deduplicated=output_deduplicate, output_exception=output_exception)
+def process_output_file(output_result, record_type, filename_output, output_formats,  output_deduplicate):
+    output_result = process_output(output_result, output_formats=output_formats, output_deduplicated=output_deduplicate)
 
     path_dir_output = path_root.joinpath("output")
     if Path.exists(path_dir_output):
@@ -332,19 +344,16 @@ if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(prog="akdig", description="Resolve the hostnames with multiple DNS.")
     arg_parser.add_argument("-c", "--character", type=str, default=",", help="Character of delimiter with output format: txt. Default: \",\".")
     arg_parser.add_argument("-d", "--deduplicate", action="store_true", help="Remove the duplicated values in result with txt format.")
-    arg_parser.add_argument("-e", "--exception", action="store_true", help="Include exception in result with txt format.")
+    arg_parser.add_argument("-e", "--exception", action="store_true", help="Include exception in result.")
     arg_parser.add_argument("-f", "--files", type=str, nargs="+", help="Use files as input, split with white space.")
     arg_parser.add_argument("-i", "--inputs", type=str, nargs="+", help="Use hostnames as input, split with white space.")
     arg_parser.add_argument("-o", "--output", type=str, nargs="+", default="none", help="Output with [json|csv|txt] format. Can be multiple values. Default: json.")
-    arg_parser.add_argument("-p", "--processing", action="store_false", help="Don't display the processing.")
+    arg_parser.add_argument("-p", "--processing", action="store_true", help="Display the processing.")
     arg_parser.add_argument("-s", "--save", action="store", default=False, help="Save output with specific format as file, 'h' to same as hostname, and other to filename.")
     arg_parser.add_argument("-t", "--type", action="store", default="A", help="Resolve the specific record type. Default: A.")
     arg_parser.add_argument("-v", "--version", action="version", version=load_version())
     args = arg_parser.parse_args()
     # __DEBUG_FLAG__: inputs
-    # args_str = "-i www.ctrip.com -t CNAME -o csv"
-    # args_str = "-i www.ctrip.com -t CNAME -o txt -d"
-    # args_str = "-i www.aojie654.com www.akasao.com -t CNAME -o txt csv json -d -s h"
     # args = arg_parser.parse_args(args_str.split())
 
     # Set output_delimiter
@@ -356,15 +365,15 @@ if __name__ == "__main__":
 
     if (args.inputs or args.files):
         if args.inputs:
-            output_result = process_input_std(hostnames=args.inputs, dns_type=args.type)
+            output_result = process_input_std(hostnames=args.inputs, dns_type=args.type, output_exception=args.exception)
         elif args.files:
-            output_result = process_input_files(files=args.files, dns_type=args.type)
+            output_result = process_input_files(files=args.files, dns_type=args.type, output_exception=args.exception)
 
         # Save to file or not
         if args.save:
             # Save to file if true
             process_output_file(output_result=output_result, record_type=args.type, filename_output=args.save,
-                                output_formats=args.output, output_deduplicate=args.deduplicate, output_exception=args.exception)
+                                output_formats=args.output, output_deduplicate=args.deduplicate)
         else:
             # Or use standard output
-            process_output_std(output_result=output_result, output_formats=args.output, output_deduplicate=args.deduplicate, output_exception=args.exception)
+            process_output_std(output_result=output_result, output_formats=args.output, output_deduplicate=args.deduplicate)
