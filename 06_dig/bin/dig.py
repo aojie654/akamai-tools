@@ -96,11 +96,16 @@ def resolve_hostname(hostname, dns_type, output_exception):
         dns_resolver = resolver.Resolver()
         for dns_server in dns_dict.keys():
             hostname_t = hostname
+            if dns_server.lower() in ["default", "local", "localdns"]:
+                pass
+            else:
+                dns_resolver.nameservers = [dns_server]
             if var_show_processing:
                 print_msg = "Working on hostname: {:} of DNS: {:}, ".format(hostname_t, dns_server)
                 print(print_msg, end="")
+            else:
+                pass
             output_result_hostname_t = dns_dict[dns_server]
-            dns_resolver.nameservers = [dns_server]
             try:
                 dns_resolve_result = str()
                 while True:
@@ -354,6 +359,7 @@ if __name__ == "__main__":
     arg_parser.add_argument("-v", "--version", action="version", version=load_version())
     args = arg_parser.parse_args()
     # __DEBUG_FLAG__: inputs
+    # args_str = ""
     # args = arg_parser.parse_args(args_str.split())
 
     # Set output_delimiter
