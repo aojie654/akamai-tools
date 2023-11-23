@@ -352,7 +352,7 @@ if __name__ == "__main__":
     arg_parser.add_argument("-e", "--exception", action="store_true", help="Include exception in result.")
     arg_parser.add_argument("-f", "--files", type=str, nargs="+", help="Use files as input, split with white space.")
     arg_parser.add_argument("-i", "--inputs", type=str, nargs="+", help="Use hostnames as input, split with white space.")
-    arg_parser.add_argument("-o", "--output", type=str, nargs="+", default="none", help="Output with [json|csv|txt] format. Can be multiple values. Default: json.")
+    arg_parser.add_argument("-o", "--output", type=str, nargs="+", default="json", help="Output with [json|csv|txt] format. Can be multiple values. Default: json.")
     arg_parser.add_argument("-p", "--processing", action="store_true", help="Display the processing.")
     arg_parser.add_argument("-s", "--save", action="store", default=False, help="Save output with specific format as file, 'h' to same as hostname, and other to filename.")
     arg_parser.add_argument("-t", "--type", action="store", default="A", help="Resolve the specific record type. Default: A.")

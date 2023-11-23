@@ -19,11 +19,6 @@
         "Location": "Miami, United States",
         "Provider": "AT&T Services"
     },
-    "204.117.214.10": {
-        "DNS": "204.117.214.10",
-        "Location": "Canoga Park, CA, United States",
-        "Provider": " Sprint"
-    },
     "64.6.64.6": {
         "DNS": "64.6.64.6",
         "Location": "Virginia, United States",
@@ -33,6 +28,11 @@
         "DNS": "149.112.112.112",
         "Location": "San Francisco, US",
         "Provider": "Quad9"
+    },
+    "205.171.202.66": {
+        "DNS": "205.171.202.66",
+        "Location": "United States",
+        "Provider": "CenturyLink"
     },
     "208.91.112.53": {
         "DNS": "208.91.112.53",
@@ -49,10 +49,10 @@
         "Location": "Cullinan, South Africa",
         "Provider": "Liquid Telecommunications Ltd"
     },
-    "188.207.200.113": {
-        "DNS": "188.207.200.113",
-        "Location": "The Hague, Netherlands",
-        "Provider": "KPN"
+    "193.58.204.59": {
+        "DNS": "193.58.204.59",
+        "Location": "Weert, Netherlands",
+        "Provider": "Pyton Communication Services B.V."
     },
     "80.67.169.40": {
         "DNS": "80.67.169.40",
@@ -79,11 +79,6 @@
         "Location": "Byfleet, United Kingdom",
         "Provider": "4D Data Centres Ltd"
     },
-    "80.196.100.209": {
-        "DNS": "80.196.100.209",
-        "Location": "Copenhagen, Denmark",
-        "Provider": "Tele Danmark"
-    },
     "82.96.64.2": {
         "DNS": "82.96.64.2",
         "Location": "Saarland, Germany",
@@ -94,10 +89,10 @@
         "Location": "Monterrey, Mexico",
         "Provider": "Marcatel Com"
     },
-    "187.6.84.178": {
-        "DNS": "187.6.84.178",
-        "Location": "Rio de Janeiro, Brazil",
-        "Provider": "Sergio Bermudes Advogados"
+    "200.248.178.54": {
+        "DNS": "200.248.178.54",
+        "Location": "Santa Cruz do Sul, Brazil",
+        "Provider": "Claro S.A"
     },
     "211.25.206.147": {
         "DNS": "211.25.206.147",
@@ -114,30 +109,35 @@
         "Location": "Melbourne, Australia",
         "Provider": "Pacific Internet"
     },
-    "139.59.219.245": {
-        "DNS": "139.59.219.245",
+    "223.165.64.97": {
+        "DNS": "223.165.64.97",
+        "Location": "Auckland, New Zealand",
+        "Provider": "SiteHost"
+    },
+    "103.86.99.100": {
+        "DNS": "103.86.99.100",
         "Location": "Singapore",
-        "Provider": "DigitalOcean LLC"
+        "Provider": "Tefincom S.A."
     },
     "164.124.101.2": {
         "DNS": "164.124.101.2",
         "Location": "Seoul, South Korea",
         "Provider": "LG Dacom Corporation"
     },
-    "223.5.5.5": {
-        "DNS": "223.5.5.5",
-        "Location": "Hangzhou, China",
-        "Provider": "Aliyun Computing Co. Ltd"
+    "202.46.34.75": {
+        "DNS": "202.46.34.75",
+        "Location": "Shenzhen, China",
+        "Provider": "Shenzhen Sunrise Technology Co. Ltd."
     },
     "31.7.37.37": {
         "DNS": "31.7.37.37",
         "Location": "Antalya, Turkey",
         "Provider": "Teknet Yazlim"
     },
-    "103.194.240.35": {
-        "DNS": "103.194.240.35",
-        "Location": "Coimbatore, India",
-        "Provider": "AirDesign Broadcast Media Pvt Ltd"
+    "115.178.96.2": {
+        "DNS": "115.178.96.2",
+        "Location": "Kota, India",
+        "Provider": "Kappa Internet Services Private Limited"
     },
     "209.150.154.1": {
         "DNS": "209.150.154.1",
