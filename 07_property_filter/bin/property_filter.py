@@ -146,5 +146,5 @@ else:
         csv_writer.writeheader()
         for result_item in result_dict.values():
             csv_writer.writerow(result_item)
-        print_msg = "Result: CSV saved to {:}".format(result_path_json)
+        print_msg = "Result: CSV saved to {:}".format(result_path_csv)
         print(print_msg)
