@@ -6,34 +6,53 @@ import csv
 import json
 import sys
 from pathlib import Path
+from datetime import datetime
 
 import requests
 from akamai.edgegrid import EdgeGridAuth, EdgeRc
 
-# Args: [edgercSection, accountSwitchKey, filterName]
-# sys.argv = [Path(__file__), "aaa", "ctrip", "cm"]
+# __DEBUG_FLAG__: Args: [edgercSection, accountSwitchKey, filterName]
+# sys.argv = [Path(__file__), "aaa", "ctrip", "aic"]
+
+# Generate the vars
 edgerc_section = sys.argv[1]
 edgerc_section_ask = sys.argv[2]
-filter_name = sys.argv[3]
-if filter_name == "aic":
-    filter_conditions = "$..behaviors[?(@.name == 'adaptiveImageCompression')]"
-    filter_name_full = "AdaptiveImageCompression"
-if filter_name == "cm":
-    filter_conditions = "$..behaviors[?(@.name == 'edgeConnect')]"
-    filter_name_full = "CloudMonitor"
+path_root = Path(__file__).parents[1]
+path_conf = path_root.joinpath("conf")
+path_conf_behaviors = path_conf.joinpath("behaviors.json")
+filter_name_full = str()
+filter_conditions = str()
+
+# Read the name and match from json
+try:
+    with open(path_conf_behaviors, mode="r", encoding="utf-8", errors="ignore") as obj_json_behaviors:
+        content_behaviors = obj_json_behaviors.read()
+        content_behaviors_json = json.loads(content_behaviors)
+        filter_name_short = sys.argv[3]
+        filter_name_full = content_behaviors_json[filter_name_short]["name_full"]
+        filter_conditions = content_behaviors_json[filter_name_short]["match"]
+
+except Exception as tmp_exception:
+    print(tmp_exception.with_traceback())
+    exit()
 
 # filter_conditions = "$..behaviors[?(@.name == 'origin')]"
 # filter_conditions = "$..behaviors[?(@.name == 'origin' && @.options.hostname == 'ak-origin.aojie654.com')]"
 
+# Generate Filename
+result_ts = datetime.now()
+result_ts_file = datetime.strftime(result_ts, "%Y%m%d-%H%M%S")
 result_dir = Path(__file__).parents[1].joinpath("output")
-result_filename_json = "{:}_{:}.json".format(edgerc_section_ask, filter_name_full)
-result_path_json = result_dir.joinpath(result_filename_json)
-result_filename_csv = "{:}_{:}.csv".format(edgerc_section_ask, filter_name_full)
-result_path_csv = result_dir.joinpath(result_filename_csv)
+result_file_name = "{:}_{:}_{:}".format(result_ts_file, edgerc_section_ask, filter_name_full)
+result_file_path = result_dir.joinpath(result_file_name)
+result_path_json = result_file_path.with_suffix(".json")
+result_path_csv = result_file_path.with_suffix(".csv")
 
+# Create folder if not exist
 if not result_dir.exists():
     result_dir.mkdir()
 
+# Generate the print message
 print_msg = {
     "EdgeRC Section": edgerc_section,
     "Account": edgerc_section_ask,
@@ -44,24 +63,25 @@ print_msg = {
 print_msg = json.dumps(print_msg, ensure_ascii=False, indent=4)
 print(print_msg)
 
-# Akamai Beijing: sao
+# Initial vars
 contract_id = ""
 group_id = ""
 
-
+# Initial edgerc
 edgerc_path = Path("~/.edgerc")
 edgerc_obj = EdgeRc(filename=edgerc_path)
 if edgerc_section_ask != "":
     api_ask = edgerc_obj.get(edgerc_section_ask, "account_switch_key")
 else:
     api_ask = ""
+
+# Initial API Info
 api_host = edgerc_obj.get(section=edgerc_section, option="host")
 api_uri = "/papi/v1/bulk/rules-search-requests-synch"
-
 req_url = "https://{:}{:}".format(api_host, api_uri)
-
 req_method = "POST"
 
+# Initial authorization info
 req_params = {}
 if api_ask != "":
     req_params["accountSwitchKey"] = api_ask
@@ -76,6 +96,7 @@ req_headers = {
     "content-type": "application/json"
 }
 
+# Bulk search
 req_payload = {
     "bulkSearchQuery":
     {
@@ -85,11 +106,13 @@ req_payload = {
     }
 }
 
+# Create reuqest session
 req_session = requests.Session()
 req_session.auth = EdgeGridAuth.from_edgerc(edgerc_obj, edgerc_section)
 req_result = req_session.request(method=req_method, url=req_url, params=req_params, headers=req_headers, json=req_payload)
 rep_dict = req_result.json()
 
+# Match the response
 if req_result.status_code != 200:
     # print_msg = json.dumps(rep_dict, ensure_ascii=False)
     print_msg = json.dumps(rep_dict, ensure_ascii=False, indent=4)
@@ -141,6 +164,8 @@ else:
                 # print(type(prop_tmp["propertyVersion"]), type(result_dict[prop_tmp_name][result_csv_headers[4]]))
             else:
                 pass
+
+    # Write to file
     with open(file=result_path_csv, mode="w+", encoding="utf-8", errors="ignore") as result_file_csv:
         csv_writer = csv.DictWriter(result_file_csv, fieldnames=result_csv_headers)
         csv_writer.writeheader()
