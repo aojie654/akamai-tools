@@ -3,7 +3,7 @@
 
 
 import csv
-import json
+import jsonc
 import sys
 from pathlib import Path
 from datetime import datetime
@@ -27,7 +27,7 @@ filter_conditions = str()
 try:
     with open(path_conf_behaviors, mode="r", encoding="utf-8", errors="ignore") as obj_json_behaviors:
         content_behaviors = obj_json_behaviors.read()
-        content_behaviors_json = json.loads(content_behaviors)
+        content_behaviors_json = jsonc.loads(content_behaviors)
         filter_name_short = sys.argv[3]
         filter_name_full = content_behaviors_json[filter_name_short]["name_full"]
         filter_conditions = content_behaviors_json[filter_name_short]["match"]
@@ -60,7 +60,7 @@ print_msg = {
     "Filter Conditions": filter_conditions,
 
 }
-print_msg = json.dumps(print_msg, ensure_ascii=False, indent=4)
+print_msg = jsonc.dumps(print_msg, ensure_ascii=False, indent=4)
 print(print_msg)
 
 # Initial vars
@@ -114,8 +114,8 @@ rep_dict = req_result.json()
 
 # Match the response
 if req_result.status_code != 200:
-    # print_msg = json.dumps(rep_dict, ensure_ascii=False)
-    print_msg = json.dumps(rep_dict, ensure_ascii=False, indent=4)
+    # print_msg = jsonc.dumps(rep_dict, ensure_ascii=False)
+    print_msg = jsonc.dumps(rep_dict, ensure_ascii=False, indent=4)
     print(print_msg)
 else:
     # Original results in json
@@ -123,7 +123,7 @@ else:
 
     # Save to json file
     with open(file=result_path_json, mode="w+", encoding="utf-8", errors="ignore") as result_file_json:
-        result_dict_jsoned = json.dumps(result_dict, ensure_ascii=False, indent=4)
+        result_dict_jsoned = jsonc.dumps(result_dict, ensure_ascii=False, indent=4)
         result_file_json.write(result_dict_jsoned)
         print_msg = "Result: JSON saved to {:}".format(result_path_json)
         print(print_msg)
@@ -150,17 +150,17 @@ else:
                 pass
             if prop_tmp["stagingStatus"] == "ACTIVE":
                 # if result_dict[prop_tmp_name][result_csv_headers[1]] == "N/A":
-                result_dict[prop_tmp_name][result_csv_headers[1]] = prop_tmp["propertyVersion"],
-                result_dict[prop_tmp_name][result_csv_headers[2]] = prop_tmp["stagingStatus"],
-                result_dict[prop_tmp_name][result_csv_headers[3]] = prop_tmp["matchLocations"],
+                result_dict[prop_tmp_name][result_csv_headers[1]] = prop_tmp["propertyVersion"]
+                result_dict[prop_tmp_name][result_csv_headers[2]] = prop_tmp["stagingStatus"]
+                result_dict[prop_tmp_name][result_csv_headers[3]] = prop_tmp["matchLocations"]
                 # print(type(prop_tmp["propertyVersion"]), type(result_dict[prop_tmp_name][result_csv_headers[1]]))
             else:
                 pass
             if prop_tmp["productionStatus"] == "ACTIVE":
                 # if result_dict[prop_tmp_name][result_csv_headers[4]] == "N/A":
-                result_dict[prop_tmp_name][result_csv_headers[4]] = prop_tmp["propertyVersion"],
-                result_dict[prop_tmp_name][result_csv_headers[5]] = prop_tmp["productionStatus"],
-                result_dict[prop_tmp_name][result_csv_headers[6]] = prop_tmp["matchLocations"],
+                result_dict[prop_tmp_name][result_csv_headers[4]] = prop_tmp["propertyVersion"]
+                result_dict[prop_tmp_name][result_csv_headers[5]] = prop_tmp["productionStatus"]
+                result_dict[prop_tmp_name][result_csv_headers[6]] = prop_tmp["matchLocations"]
                 # print(type(prop_tmp["propertyVersion"]), type(result_dict[prop_tmp_name][result_csv_headers[4]]))
             else:
                 pass
