@@ -219,6 +219,9 @@ def slot_list_enrollments(logger: Logger, csv_obj: csv.DictWriter, csv_headers: 
         csv_headers[0]: account_name,
         csv_headers[1]: account_ask,
         csv_headers[2]: contract_id,
+        csv_headers[3]: "N/A",
+        csv_headers[4]: "N/A",
+        csv_headers[5]: "N/A",
     }
     try:
         api_params = {
@@ -237,26 +240,23 @@ def slot_list_enrollments(logger: Logger, csv_obj: csv.DictWriter, csv_headers: 
                         continue
                     else:
                         for pending_change in enrollment_item["pendingChanges"]:
-                            if (("changeType" in pending_change.keys()) and (pending_change["changeType"] == "renewal")):
-                                slot_cn = enrollment_item["csr"]["cn"]
-                                slot_id = enrollment_item["assignedSlots"][0]
-                                enrollment_obj[csv_headers[3]] = slot_cn
-                                enrollment_obj[csv_headers[4]] = slot_id
+                            if ("changeType" in pending_change.keys()):
+                                enrollment_obj[csv_headers[3]] = enrollment_item["csr"]["cn"]
+                                enrollment_obj[csv_headers[4]] = enrollment_item["assignedSlots"][0]
+                                enrollment_obj[csv_headers[5]] = pending_change["changeType"]
                                 csv_obj.writerow(enrollment_obj)
                                 log_msg = "Add enrollment: {:}".format(enrollment_obj)
+                                print(log_msg)
                                 logger.info(log_msg)
                             else:
-                                enrollment_obj[csv_headers[3]] = "N/A"
-                                enrollment_obj[csv_headers[4]] = "N/A"
                                 continue
         else:
             log_msg = "{:}: {:}".format(rsp_obj.status_code, rsp_obj.text)
             raise Exception(log_msg)
     except Exception as e:
         log_msg = e
-        logger.error(log_msg)
-    finally:
         print(log_msg)
+        logger.error(log_msg)
 
     return
 
@@ -288,7 +288,7 @@ def contracts_get(logger: Logger, api_host: str, req_obj: Session, account: str)
             log_msg = "{:}: {:}".format(rsp_obj.status_code, rsp_obj.text)
             raise Exception(log_msg)
     except Exception as e:
-        log_msg = e.with_traceback()
+        log_msg = e
         print(log_msg)
         logger.error(log_msg)
         contract_list.append("N/A")
@@ -319,7 +319,7 @@ def csv_init(logger: Logger):
         csv_path_folder.mkdir()
     logger.info(log_msg)
     csv_file = open(file=csv_path_file, mode="w+", encoding="utf-8", errors="ignore")
-    csv_headers = ["Account Name", "Account Switch Key", "Contract", "Common Name", "Slot ID"]
+    csv_headers = ["Account Name", "Account Switch Key", "Contract", "Common Name", "Slot ID", "Change Type"]
     csv_obj = csv.DictWriter(f=csv_file, fieldnames=csv_headers)
     csv_obj.writeheader()
 
