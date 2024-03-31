@@ -2,14 +2,15 @@
 
 ## 0x01. Introduction
 
-| No.  | Name                                                   | Processing | Description                                      |
-| :--- | :----------------------------------------------------- | :--------- | :----------------------------------------------- |
-| 01   | [CIP](./01_cip/README.md)                              | developing | IP2Location with Akamai EdgeScape Pro            |
-| 02   | Python Curl                                            | 暂时鸽了   | simple curl with Akamai pragma headers in python |
-| 03   | [Reference Decoder](./03_refference_decoder/README.md) | Finished   | decode the reference code with HTML encoded      |
-| 04   | Timezone Convertor                                     | developing | Convert the timestamp with specific timezone     |
-| 05   | [Bot Attacker](./05_bot_attacker/README.md)            | developing | Attack simulator                                 |
-| 06   | [dig](./06_dig/README.md)                              | developing | DNS resolve with multple dns like dnschecker.org |
+| No.  | Name                                                   | Processing | Description                                           |
+| :--- | :----------------------------------------------------- | :--------- | :---------------------------------------------------- |
+| 01   | [CIP](./01_cip/README.md)                              | developing | IP2Location with Akamai EdgeScape Pro                 |
+| 02   | Python Curl                                            | 暂时鸽了   | simple curl with Akamai pragma headers in python      |
+| 03   | [Reference Decoder](./03_refference_decoder/README.md) | Finished   | decode the reference code with HTML encoded           |
+| 04   | Timezone Convertor                                     | developing | Convert the timestamp with specific timezone          |
+| 05   | [Bot Attacker](./05_bot_attacker/README.md)            | developing | Attack simulator                                      |
+| 06   | [dig](./06_dig/README.md)                              | developing | DNS resolve with multple dns like dnschecker.org      |
+| 08   | [CPS Monitor](./08_cps_monitor/README.md)              | developing | List all the certificates renewal by the account list |
 
 ## 0x02. What shoud I do?
 

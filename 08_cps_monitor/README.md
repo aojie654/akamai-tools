@@ -53,8 +53,22 @@ python3 --version
     ```
 
 4. 修改配置文件:
-   1. 复制 `08_cps_monitor/conf/conf.example.json` 为 `08_cps_monitor/conf/conf.json`
-   2. (可选) 根据个人喜好, 按照格式修改 DNS 服务器列表
+   - 复制 `08_cps_monitor/conf/conf.example.json` 为 `08_cps_monitor/conf/conf.json`
+   - 样例:
+
+    ``` json
+    {
+        "api_client": {
+            "section": "default"
+        },
+        "accounts": {
+        }
+    }
+    ```
+
+    - api_client: 请确保在 home 目录下正确存放了 .edgerc 文件
+      - section: edgerc 中需要使用的 API Client 所在的 section.
+
 5. 以 dig.py 路径为 `/Users/user/git/akamai-tools/08_cps_monitor/bin/cps_monitor.py` 为例, 通过以下命令查看 dig 是否运行正常:
 
    ``` shell
@@ -166,22 +180,7 @@ python3 --version
 |              | 多个文件名之间以空格分隔, 建议添加引号.                                                               | -u "admin@exmple.com"  "cdnadmin@exmple.com"           |
 | s / slot     | 查询配置中所有 account 正在 renew 的证书                                                              | -s                                                     |
 
-## 0x04. 配置文件
-
-``` json
-{
-    "api_client": {
-        "section": "default"
-    },
-    "accounts": {
-    }
-}
-```
-
-- api_client: 请确保正确的在 home 目录下存放了 .edgerc 文件
-  - section: edgerc 中需要使用的 API Client 所在的 section.
-
-## 0x05. 样例
+## 0x04. 样例
 
 - 添加 accounts
   - 输入:
@@ -243,4 +242,4 @@ python3 --version
     Output: CSV: /Users/user/git/akamai-tools/08_cps_monitor/output/result_20240331.csv.
     ```
 
-  - 输出文件在
+  - 检查输出文件 查看 renew 的证书列表
