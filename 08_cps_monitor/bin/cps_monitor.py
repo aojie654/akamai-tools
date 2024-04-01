@@ -34,17 +34,19 @@ def log_init():
     path_home = path_init()
     path_folder_log = path_home.joinpath(name_folder_log)
     if not path_folder_log.exists():
-        log_msg = "Log folder:{:} not exist, create one.".format(path_folder_log)
-        print(log_msg)
+        log_msg = "log_init; Log folder:{:} not exist, create one.".format(path_folder_log)
         path_folder_log.mkdir()
     else:
+        log_msg = "log_init; Log folder:{:} exist, create skipped.".format(path_folder_log)
         pass
+    print(log_msg)
     date_str = date_init()
     name_file_log = "cps_monitor_{:}.log".format(date_str)
     path_file_log = path_folder_log.joinpath(name_file_log)
-    log_msg = "Log Path is: {:}".format(path_file_log)
     logger = logging.getLogger(__file__)
     logging.basicConfig(filename=path_file_log, encoding='utf-8', level=logging.INFO, format='%(asctime)s; %(levelname)s; %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logger.info(log_msg)
+    log_msg = "log_init; Log Path is: {:}".format(path_file_log)
     print(log_msg)
     logger.info(log_msg)
 
@@ -60,7 +62,7 @@ def config_processor(logger: Logger, config_action: str, config_obj: dict = dict
     path_file_conf = path_folder_conf.joinpath(name_file_conf)
     if config_action == "load":
         if (not path_file_conf.exists):
-            log_msg = "Conf: {:} not exist, exit.".format(path_file_conf)
+            log_msg = "config_processor; Config: {:} not exist, exit.".format(path_file_conf)
             print(log_msg)
             logger.error(log_msg)
             exit()
@@ -70,7 +72,7 @@ def config_processor(logger: Logger, config_action: str, config_obj: dict = dict
             conf_file_json = json.loads(conf_file_str)
             conf_file_obj.close()
 
-        log_msg = "Config loaded."
+        log_msg = "config_processor; Config: {:} loaded.".format(path_file_conf)
         print(log_msg)
         logger.info(log_msg)
 
@@ -80,7 +82,7 @@ def config_processor(logger: Logger, config_action: str, config_obj: dict = dict
             config_jsonfy = json.dumps(config_obj, ensure_ascii=False, indent=4)
             conf_file_obj.write(config_jsonfy)
             conf_file_obj.close()
-        log_msg = "Config saved."
+        log_msg = "config_processor; Config: {:} saved.".format(path_file_conf)
         print(log_msg)
         logger.info(log_msg)
 
@@ -91,7 +93,7 @@ def edgerc_init(logger: Logger, config_obj: dict):
     edgerc_section = config_obj["api_client"]["section"]
     edgerc_obj = EdgeRc(path_file_edgerc)
     api_host = edgerc_obj.get(section=edgerc_section, option="host")
-    log_msg = "Config: {:} loaded, Api client section: {:}.".format(path_file_edgerc, edgerc_section)
+    log_msg = "edgerc_init; Config: {:} loaded, Api client section: {:}".format(path_file_edgerc, edgerc_section)
     print(log_msg)
     logger.info(log_msg)
 
@@ -100,7 +102,7 @@ def edgerc_init(logger: Logger, config_obj: dict):
 
 def accounts_processor(logger: Logger, config_obj: dict, command_type: str, accounts_list: list):
     if command_type not in ["add", "remove"]:
-        log_msg = "Invalid command: {:}.".format(command_type)
+        log_msg = "accounts_processor; Invalid command: {:}".format(command_type)
     else:
         if command_type == "add":
             for account in accounts_list:
@@ -110,19 +112,18 @@ def accounts_processor(logger: Logger, config_obj: dict, command_type: str, acco
                 config_obj = account_remove(logger=logger, config_obj=config_obj, account=account)
 
         config_processor(logger=logger, config_action="save", config_obj=config_obj)
-        log_msg = "Accounts: {:} processed.".format(accounts_list)
+        log_msg = "accounts_processor; Accounts processed: {:}".format(accounts_list)
 
     return log_msg
 
 
 def account_add(logger: Logger, config_obj: dict, account: str):
-    log_msg = str()
     account_ask, account_name = account.split("|")
     if account_ask in config_obj["accounts"].keys():
-        log_msg = "Account: {:}|{:} already exist in account list.".format(account_ask, account_name)
+        log_msg = "account_add; Account already exist: {:}|{:}".format(account_ask, account_name)
     else:
         config_obj["accounts"][account_ask] = account_name
-        log_msg = "Account: {:}|{:} added.".format(account_ask, account_name)
+        log_msg = "account_add; Account added: {:}|{:}".format(account_ask, account_name)
     print(log_msg)
     logger.info(log_msg)
 
@@ -130,14 +131,13 @@ def account_add(logger: Logger, config_obj: dict, account: str):
 
 
 def account_remove(logger: Logger, config_obj: dict, account: str):
-    log_msg = str()
     account_ask = account
     account_name = config_obj["accounts"][account_ask]
     if account_ask not in config_obj["accounts"].keys():
-        log_msg = "Account: {:}|{:} not in account list.".format(account_ask, account_name)
+        log_msg = "account_remove; Account not exist: {:}|{:} ".format(account_ask, account_name)
     else:
         config_obj["accounts"].pop(account_ask)
-        log_msg = "Account: {:}|{:} removed.".format(account_ask, account_name)
+        log_msg = "account_remove; Account removed: {:}|{:}".format(account_ask, account_name)
 
     print(log_msg)
     logger.info(log_msg)
@@ -150,14 +150,14 @@ def users_processor(logger: Logger, config_obj: dict, command_type: str, user_li
         for account_ask in account_asks:
             for user_id in user_list:
                 user_add(logger=logger, config_obj=config_obj, user_id=user_id, account_ask=account_ask)
-        log_msg = "Users: {:} added.".format(user_list)
+        log_msg = "users_processor; Users added: {:}".format(user_list)
     elif command_type == "remove":
         for account_ask in account_asks:
             for user_id in user_list:
                 user_remove(logger=logger, config_obj=config_obj, user_id=user_id, account_ask=account_ask)
-        log_msg = "Users: {:} removed.".format(user_list)
+        log_msg = "users_processor; Users removed: {:}".format(user_list)
     else:
-        log_msg = "Invalid command: {:}.".format(command_type)
+        log_msg = "users_processor; Invalid command: {:}".format(command_type)
 
     return log_msg
 
@@ -169,7 +169,7 @@ def user_get(logger: Logger, config_obj: dict, account_ask: str):
 
 
 def user_add(logger: Logger, config_obj: dict, user_id: str, account_ask: str):
-    log_msg = "User: {:} added to account: {:}.".format(user_id, account_ask)
+    log_msg = "user_add; User: {:} added to account: {:}.".format(user_id, account_ask)
 
     print(log_msg)
     logger.info(log_msg)
@@ -178,7 +178,7 @@ def user_add(logger: Logger, config_obj: dict, user_id: str, account_ask: str):
 
 
 def user_remove(logger: Logger, config_obj: dict, user_id: str, account_ask: str):
-    log_msg = "User: {:} removed from account: {:}.".format(user_id, account_ask)
+    log_msg = "user_remove; User: {:} removed from account: {:}.".format(user_id, account_ask)
 
     print(log_msg)
     logger.info(log_msg)
@@ -191,23 +191,29 @@ def slots_processor(logger: Logger, config_obj: dict):
     csv_file, csv_path_file, csv_obj, csv_headers = csv_init(logger=logger)
     for account_ask in config_obj["accounts"].keys():
         account_name = config_obj["accounts"][account_ask]
-        contract_list = contracts_get(logger=logger, api_host=api_host, req_obj=req_obj, account=account_ask)
+        account = {
+            "ask": account_ask,
+            "name": account_name,
+        }
+        contract_list = contracts_get(logger=logger, api_host=api_host, req_obj=req_obj, account=account)
         if contract_list[0] == "N/A":
-            log_msg = "Errors when get contract list."
+            log_msg = "slots_processor; Errors when get contract list: {:}|{:}".format(account_ask, account_name)
             logger.error(log_msg)
         else:
             for contract_id in contract_list:
-                slot_list_enrollments(logger=logger, csv_obj=csv_obj, csv_headers=csv_headers, req_obj=req_obj, api_host=api_host, account_ask=account_ask, account_name=account_name, contract_id=contract_id)
-            log_msg = "Slots processed."
+                slot_list_enrollments(logger=logger, csv_obj=csv_obj, csv_headers=csv_headers, req_obj=req_obj, api_host=api_host, account=account, contract_id=contract_id)
+            log_msg = "slots_processor; Slots processed: {:}|{:}".format(account_ask, account_name)
             logger.info(log_msg)
         print(log_msg)
     csv_file.close()
-    log_msg = "Output: CSV: {:}.".format(csv_path_file)
+    log_msg = "slots_processor; Output CSV path: {:}.".format(csv_path_file)
     return log_msg
 
 
-def slot_list_enrollments(logger: Logger, csv_obj: csv.DictWriter, csv_headers: str, req_obj: Session, api_host: str, account_ask: str, account_name: str, contract_id: str):
-    log_msg = str()
+def slot_list_enrollments(logger: Logger, csv_obj: csv.DictWriter, csv_headers: str, req_obj: Session, api_host: str, account: dict, contract_id: str):
+    account_ask = account["ask"]
+    account_name = account["name"]
+    
     api_method = "GET"
     api_uri = "/cps/v2/enrollments"
     api_url = "https://{:}{:}".format(api_host, api_uri)
@@ -232,7 +238,8 @@ def slot_list_enrollments(logger: Logger, csv_obj: csv.DictWriter, csv_headers: 
         if rsp_obj.status_code == 200:
             rsp_obj_json = rsp_obj.json()
             if len(rsp_obj_json["enrollments"]) == 0:
-                log_msg = "No enrollments in contract: {:} > {:}".format(account_name, contract_id)
+                log_msg = "slot_list_enrollments; No enrollments in contract: {:}|{:}".format(account_name, contract_id)
+                print(log_msg)
                 logger.info(log_msg)
             else:
                 for enrollment_item in rsp_obj_json["enrollments"]:
@@ -245,13 +252,13 @@ def slot_list_enrollments(logger: Logger, csv_obj: csv.DictWriter, csv_headers: 
                                 enrollment_obj[csv_headers[4]] = enrollment_item["assignedSlots"][0]
                                 enrollment_obj[csv_headers[5]] = pending_change["changeType"]
                                 csv_obj.writerow(enrollment_obj)
-                                log_msg = "Add enrollment: {:}".format(enrollment_obj)
+                                log_msg = "slot_list_enrollments; Add enrollment from contract: {:}|{:}|{:}".format(account_name, contract_id, enrollment_obj)
                                 print(log_msg)
                                 logger.info(log_msg)
                             else:
                                 continue
         else:
-            log_msg = "{:}: {:}".format(rsp_obj.status_code, rsp_obj.text)
+            log_msg = "slot_list_enrollments; {:}: {:}|{:}: {:}".format(rsp_obj.status_code, account_name, contract_id, rsp_obj.text)
             raise Exception(log_msg)
     except Exception as e:
         log_msg = e
@@ -261,14 +268,15 @@ def slot_list_enrollments(logger: Logger, csv_obj: csv.DictWriter, csv_headers: 
     return
 
 
-def contracts_get(logger: Logger, api_host: str, req_obj: Session, account: str):
+def contracts_get(logger: Logger, api_host: str, req_obj: Session, account: dict):
     contract_list = list()
-
+    account_ask = account["ask"]
+    account_name = account["name"]
     api_method = "GET"
     api_uri = "/papi/v1/contracts"
     api_url = "https://{:}{:}".format(api_host, api_uri)
     api_params = {
-        "accountSwitchKey": account,
+        "accountSwitchKey": account_ask,
     }
     api_headers = {
         "PAPI-Use-Prefixes": "true",
@@ -281,11 +289,11 @@ def contracts_get(logger: Logger, api_host: str, req_obj: Session, account: str)
             rsp_obj_json = rsp_obj.json()
             for item in rsp_obj_json["contracts"]["items"]:
                 contract_list.append(item["contractId"])
-            config_obj[account] = contract_list
-            log_msg = "Add account: {:} with contracts: {:}".format(account, contract_list)
+            config_obj[account_ask] = contract_list
+            log_msg = "contracts_get; Add account with contracts: {:}|{:}: {:}".format(account_ask, account_name, contract_list)
             logger.info(log_msg)
         else:
-            log_msg = "{:}: {:}".format(rsp_obj.status_code, rsp_obj.text)
+            log_msg = "contracts_get; {:}: {:}: {:}".format(rsp_obj.status_code, account_name, rsp_obj.text)
             raise Exception(log_msg)
     except Exception as e:
         log_msg = e
@@ -313,9 +321,9 @@ def csv_init(logger: Logger):
     csv_path_folder = path_init().joinpath("output")
     csv_path_file = csv_path_folder.joinpath(csv_filename)
     if (csv_path_folder.exists()):
-        log_msg = "CSV path: {:} exist, create skipped.".format(csv_path_folder)
+        log_msg = "csv_init; CSV path: {:} exist, create skipped.".format(csv_path_folder)
     else:
-        log_msg = "CSV path: {:} not exist, create one.".format(csv_path_folder)
+        log_msg = "csv_init; CSV path: {:} not exist, create one.".format(csv_path_folder)
         csv_path_folder.mkdir()
     logger.info(log_msg)
     csv_file = open(file=csv_path_file, mode="w+", encoding="utf-8", errors="ignore")
