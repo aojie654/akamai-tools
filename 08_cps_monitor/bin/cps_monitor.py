@@ -33,7 +33,7 @@ def log_init():
     name_folder_log = "log"
     path_home = path_init()
     path_folder_log = path_home.joinpath(name_folder_log)
-    if not path_folder_log.exists:
+    if not path_folder_log.exists():
         log_msg = "Log folder:{:} not exist, create one.".format(path_folder_log)
         print(log_msg)
         path_folder_log.mkdir()
