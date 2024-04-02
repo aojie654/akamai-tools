@@ -100,19 +100,19 @@ def edgerc_init(logger: Logger, config_obj: dict):
     return edgerc_obj, edgerc_section, api_host
 
 
-def accounts_processor(logger: Logger, config_obj: dict, command_type: str, accounts_list: list):
+def accounts_processor(logger: Logger, config_obj: dict, command_type: str, account_list: list):
     if command_type not in ["add", "remove"]:
         log_msg = "accounts_processor; Invalid command: {:}".format(command_type)
     else:
         if command_type == "add":
-            for account in accounts_list:
+            for account in account_list:
                 config_obj = account_add(logger=logger, config_obj=config_obj, account=account)
         elif command_type == "remove":
-            for account in accounts_list:
+            for account in account_list:
                 config_obj = account_remove(logger=logger, config_obj=config_obj, account=account)
 
         config_processor(logger=logger, config_action="save", config_obj=config_obj)
-        log_msg = "accounts_processor; Accounts processed: {:}".format(accounts_list)
+        log_msg = "accounts_processor; Accounts processed: {:}".format(account_list)
 
     return log_msg
 
@@ -122,7 +122,10 @@ def account_add(logger: Logger, config_obj: dict, account: str):
     if account_ask in config_obj["accounts"].keys():
         log_msg = "account_add; Account already exist: {:}|{:}".format(account_ask, account_name)
     else:
-        config_obj["accounts"][account_ask] = account_name
+        config_obj["accounts"][account_ask] = {
+            "name": account_name,
+            "users": list(),
+        }
         log_msg = "account_add; Account added: {:}|{:}".format(account_ask, account_name)
     print(log_msg)
     logger.info(log_msg)
@@ -132,7 +135,7 @@ def account_add(logger: Logger, config_obj: dict, account: str):
 
 def account_remove(logger: Logger, config_obj: dict, account: str):
     account_ask = account
-    account_name = config_obj["accounts"][account_ask]
+    account_name = config_obj["accounts"][account_ask]["name"]
     if account_ask not in config_obj["accounts"].keys():
         log_msg = "account_remove; Account not exist: {:}|{:} ".format(account_ask, account_name)
     else:
@@ -145,41 +148,61 @@ def account_remove(logger: Logger, config_obj: dict, account: str):
     return config_obj
 
 
-def users_processor(logger: Logger, config_obj: dict, command_type: str, user_list: list, account_asks: list):
+def users_processor(logger: Logger, config_obj: dict, command_type: str, user_list: list, account_list: list):
     if command_type == "add":
-        for account_ask in account_asks:
-            for user_id in user_list:
-                user_add(logger=logger, config_obj=config_obj, user_id=user_id, account_ask=account_ask)
+        for account in account_list:
+            config_obj = user_add(logger=logger, config_obj=config_obj, user_set=user_list, account=account)
         log_msg = "users_processor; Users added: {:}".format(user_list)
     elif command_type == "remove":
-        for account_ask in account_asks:
-            for user_id in user_list:
-                user_remove(logger=logger, config_obj=config_obj, user_id=user_id, account_ask=account_ask)
+        for account in account_list:
+            config_obj = user_remove(logger=logger, config_obj=config_obj, user_set=user_list, account=account)
         log_msg = "users_processor; Users removed: {:}".format(user_list)
     else:
         log_msg = "users_processor; Invalid command: {:}".format(command_type)
+    print(log_msg)
+    logger.info(log_msg)
+    config_processor(logger=logger, config_action="save", config_obj=config_obj)
+    log_msg = "users_processor; Users processed: {:}|{:}".format(account_list, user_list)
 
     return log_msg
 
 
-def user_get(logger: Logger, config_obj: dict, account_ask: str):
-    users_list = list()
+def user_get(logger: Logger, config_obj: dict, account: dict):
+    account_ask = account
+    user_list_account = config_obj["accounts"][account_ask]["users"]
 
-    return users_list
+    log_msg = "user_get; User list: {:}".format(user_list_account)
+    print(log_msg)
+    logger.info(log_msg)
+
+    return user_list_account
 
 
-def user_add(logger: Logger, config_obj: dict, user_id: str, account_ask: str):
-    log_msg = "user_add; User: {:} added to account: {:}.".format(user_id, account_ask)
-
+def user_add(logger: Logger, config_obj: dict, user_set: set, account: str):
+    account_ask = account
+    user_list_account = config_obj["accounts"][account_ask]["users"]
+    log_msg = "user_add; Current user list in account: {:}|{:}.".format(account, user_list_account)
+    print(log_msg)
+    logger.info(log_msg)
+    config_obj["accounts"][account_ask]["users"] = list(set(user_list_account + user_set))
+    config_obj["accounts"][account_ask]["users"].sort()
+    log_msg = "user_add; Result user list in account: {:}|{:}.".format(account, config_obj["accounts"][account_ask]["users"])
     print(log_msg)
     logger.info(log_msg)
 
     return config_obj
 
 
-def user_remove(logger: Logger, config_obj: dict, user_id: str, account_ask: str):
-    log_msg = "user_remove; User: {:} removed from account: {:}.".format(user_id, account_ask)
-
+def user_remove(logger: Logger, config_obj: dict, user_set: set, account: dict):
+    account_ask = account
+    user_list_account = config_obj["accounts"][account_ask]["users"]
+    log_msg = "user_remove; Current user list in account: {:}|{:}.".format(account, user_set)
+    print(log_msg)
+    logger.info(log_msg)
+    for user in user_set:
+        user_list_account.remove(user)
+    config_obj["accounts"][account_ask]["users"] = user_list_account
+    log_msg = "user_remove; Result user list in account: {:}|{:}.".format(account, config_obj["accounts"][account_ask]["users"])
     print(log_msg)
     logger.info(log_msg)
 
@@ -188,12 +211,16 @@ def user_remove(logger: Logger, config_obj: dict, user_id: str, account_ask: str
 
 def slots_processor(logger: Logger, config_obj: dict):
     req_obj, api_host = request_init(logger=logger, config_obj=config_obj)
-    csv_file, csv_path_file, csv_obj, csv_headers = csv_init(logger=logger)
+    slot_result_list = dict()
     for account_ask in config_obj["accounts"].keys():
-        account_name = config_obj["accounts"][account_ask]
+        account_name = config_obj["accounts"][account_ask]["name"]
         account = {
             "ask": account_ask,
             "name": account_name,
+        }
+        slot_result_list[account_name] = {
+            "ask": account_ask,
+            "enrollments": dict()
         }
         contract_list = contracts_get(logger=logger, api_host=api_host, req_obj=req_obj, account=account)
         if contract_list[0] == "N/A":
@@ -201,19 +228,22 @@ def slots_processor(logger: Logger, config_obj: dict):
             logger.error(log_msg)
         else:
             for contract_id in contract_list:
-                slot_list_enrollments(logger=logger, csv_obj=csv_obj, csv_headers=csv_headers, req_obj=req_obj, api_host=api_host, account=account, contract_id=contract_id)
+                slot_result_list = slot_list_enrollments(logger=logger, req_obj=req_obj, api_host=api_host, account=account, contract_id=contract_id, slot_result_list=slot_result_list)
             log_msg = "slots_processor; Slots processed: {:}|{:}".format(account_ask, account_name)
             logger.info(log_msg)
         print(log_msg)
-    csv_file.close()
-    log_msg = "slots_processor; Output CSV path: {:}.".format(csv_path_file)
+
+    slot_result_writer(logger=logger, slot_result_list=slot_result_list)
+
+    log_msg = "slots_processor; Slot processing end."
+
     return log_msg
 
 
-def slot_list_enrollments(logger: Logger, csv_obj: csv.DictWriter, csv_headers: str, req_obj: Session, api_host: str, account: dict, contract_id: str):
+def slot_list_enrollments(logger: Logger, req_obj: Session, api_host: str, account: dict, contract_id: str, slot_result_list: dict):
     account_ask = account["ask"]
     account_name = account["name"]
-    
+
     api_method = "GET"
     api_uri = "/cps/v2/enrollments"
     api_url = "https://{:}{:}".format(api_host, api_uri)
@@ -221,14 +251,6 @@ def slot_list_enrollments(logger: Logger, csv_obj: csv.DictWriter, csv_headers: 
         "accept": "application/vnd.akamai.cps.enrollments.v11+json",
     }
     contract_id = contract_id.replace("ctr_", "")
-    enrollment_obj = {
-        csv_headers[0]: account_name,
-        csv_headers[1]: account_ask,
-        csv_headers[2]: contract_id,
-        csv_headers[3]: "N/A",
-        csv_headers[4]: "N/A",
-        csv_headers[5]: "N/A",
-    }
     try:
         api_params = {
             "accountSwitchKey": account_ask,
@@ -242,21 +264,28 @@ def slot_list_enrollments(logger: Logger, csv_obj: csv.DictWriter, csv_headers: 
                 print(log_msg)
                 logger.info(log_msg)
             else:
-                for enrollment_item in rsp_obj_json["enrollments"]:
-                    if len(enrollment_item["pendingChanges"]) == 0:
+                slot_result_list[account_name]["enrollments"][contract_id] = dict()
+                for enrollment in rsp_obj_json["enrollments"]:
+                    if len(enrollment["pendingChanges"]) == 0:
                         continue
                     else:
-                        for pending_change in enrollment_item["pendingChanges"]:
+                        for pending_change in enrollment["pendingChanges"]:
                             if ("changeType" in pending_change.keys()):
-                                enrollment_obj[csv_headers[3]] = enrollment_item["csr"]["cn"]
-                                enrollment_obj[csv_headers[4]] = enrollment_item["assignedSlots"][0]
-                                enrollment_obj[csv_headers[5]] = pending_change["changeType"]
-                                csv_obj.writerow(enrollment_obj)
-                                log_msg = "slot_list_enrollments; Add enrollment from contract: {:}|{:}|{:}".format(account_name, contract_id, enrollment_obj)
+                                slot_id = enrollment["assignedSlots"][0]
+                                slot_name = enrollment["csr"]["cn"]
+                                slot_type = pending_change["changeType"]
+                                slot_result_list[account_name]["enrollments"][contract_id][slot_id] = {
+                                    "name": slot_name,
+                                    "type": slot_type,
+                                }
+                                log_msg = "slot_list_enrollments; Add enrollment from contract: {:}|{:}: {:}|{:}|{:}".format(account_name, contract_id, slot_id, slot_name, slot_type)
                                 print(log_msg)
                                 logger.info(log_msg)
                             else:
                                 continue
+                if len(slot_result_list[account_name]["enrollments"][contract_id]) == 0:
+                    log_msg = "slot_list_enrollments: Contract no pending enrollments: {:}|{:}".format(account_name, contract_id)
+                    slot_result_list[account_name]["enrollments"].pop(contract_id)
         else:
             log_msg = "slot_list_enrollments; {:}: {:}|{:}: {:}".format(rsp_obj.status_code, account_name, contract_id, rsp_obj.text)
             raise Exception(log_msg)
@@ -265,6 +294,36 @@ def slot_list_enrollments(logger: Logger, csv_obj: csv.DictWriter, csv_headers: 
         print(log_msg)
         logger.error(log_msg)
 
+    return slot_result_list
+
+
+def slot_result_writer(logger: Logger, slot_result_list: dict):
+    csv_file, csv_path_file, csv_obj, csv_headers = csv_init(logger=logger)
+    account_name_list = list(slot_result_list.keys())
+    account_name_list.sort()
+    for account_name in account_name_list:
+        account_ask = slot_result_list[account_name]["ask"]
+        contract_id_list = list(slot_result_list[account_name]["enrollments"].keys())
+        contract_id_list.sort()
+        for contract_id in contract_id_list:
+            slot_id_list = list(slot_result_list[account_name]["enrollments"][contract_id].keys())
+            slot_id_list.sort()
+            for slot_id in slot_id_list:
+                enrollment_item = slot_result_list[account_name]["enrollments"][contract_id][slot_id]
+                enrollment_obj = {
+                    csv_headers[0]: account_name,
+                    csv_headers[1]: account_ask,
+                    csv_headers[2]: contract_id,
+                    csv_headers[3]: enrollment_item["name"],
+                    csv_headers[4]: slot_id,
+                    csv_headers[5]: enrollment_item["type"],
+                }
+                csv_obj.writerow(enrollment_obj)
+    csv_file.close()
+
+    log_msg = "slot_result_writer; Output CSV path: {:}.".format(csv_path_file)
+    print(log_msg)
+    logger.info(log_msg)
     return
 
 
@@ -351,9 +410,9 @@ if __name__ == "__main__":
         if (args.accounts or args.users):
             if args.accounts:
                 if (not args.users):
-                    result_processor = accounts_processor(logger=logger, config_obj=config_obj, command_type=args.command, accounts_list=args.accounts, )
+                    result_processor = accounts_processor(logger=logger, config_obj=config_obj, command_type=args.command, account_list=args.accounts, )
                 else:
-                    result_processor = users_processor(logger=logger, config_obj=config_obj, command_type=args.command, user_list=args.users, account_asks=args.accounts)
+                    result_processor = users_processor(logger=logger, config_obj=config_obj, command_type=args.command, user_list=args.users, account_list=args.accounts)
             else:
                 pass
         elif args.slot:

@@ -1,6 +1,6 @@
 # Akamai Tools: CPS Monitor
 
-使用 Python 库 `edgegrid-python, requests` 获取 CPS 证书更新状态
+使用 Python 库 `edgegrid-python, requests` 获取 CPS 证书 enroll 状态
 
 [English Doc](./README_en.md)
 
@@ -69,7 +69,7 @@ python3 --version
     - api_client: 请确保在 home 目录下正确存放了 .edgerc 文件
       - section: edgerc 中需要使用的 API Client 所在的 section.
 
-5. 以 dig.py 路径为 `/Users/user/git/akamai-tools/08_cps_monitor/bin/cps_monitor.py` 为例, 通过以下命令查看 dig 是否运行正常:
+5. 以 cps_monitor.py 路径为 `/Users/user/git/akamai-tools/08_cps_monitor/bin/cps_monitor.py` 为例, 通过以下命令查看 dig 是否运行正常:
 
    ``` shell
    python3 /Users/user/git/akamai-tools/08_cps_monitor/bin/cps_monitor.py -h
@@ -176,9 +176,9 @@ python3 --version
 |              | 添加 accounts 时以 "\|" 分割 AccountSwitchKey 和 account 名称(无需准确 Account Name, 仅用作输出标识). | -c add -a "1-AAAA\|Example.com" "1-AAAB\|Example2.com" |
 |              | 移除 accounts 时仅需输入 AccountSwitchKey.                                                            | -c remove -a "1-AAAA"                                  |
 |              | 多个值之间以空格分隔, 建议添加引号.                                                                   | -c remove -a "1-AAAA" "1-AAAB"                         |
-| u / users    | (未完成) 操作对象为 users, user 为邮箱地址, 需搭配 command 使用.                                      | -u "admin@exmple.com"                                  |
+| u / users    | (未完成) 操作对象为 users, user 为邮箱地址, 需搭配 command 和 account 使用.                           | -u "admin@exmple.com"                                  |
 |              | 多个文件名之间以空格分隔, 建议添加引号.                                                               | -u "admin@exmple.com"  "cdnadmin@exmple.com"           |
-| s / slot     | 查询配置中所有 account 正在 renew 的证书                                                              | -s                                                     |
+| s / slot     | 查询配置中所有 account 正在 enroll 的证书                                                             | -s                                                     |
 
 ## 0x04. 样例
 
@@ -218,7 +218,7 @@ python3 --version
     Accounts: ['1-AAAA', '1-AAAB'] processed.
     ```
 
-- 列出在 renew 状态的证书
+- 列出在 enroll 状态的证书
   - 输入:
 
     ``` shell
@@ -242,4 +242,4 @@ python3 --version
     Output: CSV: /Users/user/git/akamai-tools/08_cps_monitor/output/result_20240331.csv.
     ```
 
-  - 检查输出文件 查看 renew 的证书列表
+  - 检查输出文件 查看 enroll 的证书列表
