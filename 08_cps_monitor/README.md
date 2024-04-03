@@ -176,8 +176,8 @@ python3 --version
 |              | 添加 accounts 时以 "\|" 分割 AccountSwitchKey 和 account 名称(无需准确 Account Name, 仅用作输出标识). | -c add -a "1-AAAA\|Example.com" "1-AAAB\|Example2.com" |
 |              | 移除 accounts 时仅需输入 AccountSwitchKey.                                                            | -c remove -a "1-AAAA"                                  |
 |              | 多个值之间以空格分隔, 建议添加引号.                                                                   | -c remove -a "1-AAAA" "1-AAAB"                         |
-| u / users    | (未完成) 操作对象为 users, user 为邮箱地址, 需搭配 command 和 account 使用.                           | -u "admin@exmple.com"                                  |
-|              | 多个文件名之间以空格分隔, 建议添加引号.                                                               | -u "admin@exmple.com"  "cdnadmin@exmple.com"           |
+| u / users    | (未完成) 操作对象为 users, user 为邮箱地址, 需搭配 command 和 account 使用.                           | -u "<admin@exmple.com>"                                  |
+|              | 多个文件名之间以空格分隔, 建议添加引号.                                                               | -u "<admin@exmple.com>"  "<cdnadmin@exmple.com>"           |
 | s / slot     | 查询配置中所有 account 正在 enroll 的证书                                                             | -s                                                     |
 
 ## 0x04. 样例

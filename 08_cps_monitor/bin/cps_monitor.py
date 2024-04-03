@@ -185,7 +185,7 @@ def user_add(logger: Logger, config_obj: dict, user_set: set, account: str):
     print(log_msg)
     logger.info(log_msg)
     config_obj["accounts"][account_ask]["users"] = list(set(user_list_account + user_set))
-    config_obj["accounts"][account_ask]["users"].sort()
+    config_obj["accounts"][account_ask]["users"].sort(key=str.lower)
     log_msg = "user_add; Result user list in account: {:}|{:}.".format(account, config_obj["accounts"][account_ask]["users"])
     print(log_msg)
     logger.info(log_msg)
@@ -300,11 +300,11 @@ def slot_list_enrollments(logger: Logger, req_obj: Session, api_host: str, accou
 def slot_result_writer(logger: Logger, slot_result_list: dict):
     csv_file, csv_path_file, csv_obj, csv_headers = csv_init(logger=logger)
     account_name_list = list(slot_result_list.keys())
-    account_name_list.sort()
+    account_name_list.sort(key=str.lower)
     for account_name in account_name_list:
         account_ask = slot_result_list[account_name]["ask"]
         contract_id_list = list(slot_result_list[account_name]["enrollments"].keys())
-        contract_id_list.sort()
+        contract_id_list.sort(key=str.lower)
         for contract_id in contract_id_list:
             slot_id_list = list(slot_result_list[account_name]["enrollments"][contract_id].keys())
             slot_id_list.sort()
