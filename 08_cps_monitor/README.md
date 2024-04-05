@@ -1,6 +1,6 @@
 # Akamai Tools: CPS Monitor
 
-使用 Python 库 `edgegrid-python, requests, pandas` 获取 CPS 证书 enroll 状态
+使用 Python 库 `edgegrid-python, requests, pandas, tabulate` 获取 CPS 证书 enroll 状态
 
 [English Doc](./README_en.md)
 
@@ -23,6 +23,7 @@ python3 --version
   - edgegrid-python
   - requests
   - pandas
+  - tabulate
 
 ## 0x02. 安装步骤
 

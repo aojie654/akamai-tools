@@ -1,6 +1,6 @@
 # Akamai Tools: CPS Monitor
 
-Get the pending enrollments list of Akamai CPS with Python libs `edgegrid-python, requests`.
+Get the pending enrollments list of Akamai CPS with Python libs `edgegrid-python, requests, pandas, tabulate`.
 
 [Chinese Doc](./README.md)
 
@@ -23,6 +23,7 @@ python3 --version
   - edgegrid-python
   - requests
   - pandas
+  - tabulate
 
 ## 0x02. How to install
 
