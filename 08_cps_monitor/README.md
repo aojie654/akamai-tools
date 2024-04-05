@@ -1,12 +1,12 @@
 # Akamai Tools: CPS Monitor
 
-使用 Python 库 `edgegrid-python, requests` 获取 CPS 证书 enroll 状态
+使用 Python 库 `edgegrid-python, requests, pandas` 获取 CPS 证书 enroll 状态
 
 [English Doc](./README_en.md)
 
 ## 0x00. 说明
 
-- 通常情况下的文字是描述, 在方框中的文字是终端中运行的命令.
+- 通常情况下绿色的文字是描述, 在方框中的文字是终端中运行的命令.
 
 ``` shell
 # 框框里面的都是命令, 例如:
@@ -22,6 +22,7 @@ python3 --version
 - Python Libs:
   - edgegrid-python
   - requests
+  - pandas
 
 ## 0x02. 安装步骤
 
@@ -46,7 +47,7 @@ python3 --version
     python3 -m pip config set global.index-url https://mirror.nju.edu.cn/pypi/web/simple
     ```
 
-3. 通过以下命令，为 Python 安装第三方库 edgegrid-python, requests:
+3. 通过以下命令，为 Python 安装第三方库 `edgegrid-python, requests, pandas`:
 
     ``` shell
     python3 -m pip install edgegrid-python requests
@@ -61,6 +62,13 @@ python3 --version
         "api_client": {
             "section": "default"
         },
+        "webex": { // 仅在本地运行时可忽略
+            "auth": {
+                "token": "YOUR TOKEN HERE"
+            },
+            "spaces": {
+            }
+        },
         "accounts": {
         }
     }
@@ -68,6 +76,10 @@ python3 --version
 
     - api_client: 请确保在 home 目录下正确存放了 .edgerc 文件
       - section: edgerc 中需要使用的 API Client 所在的 section.
+    - webex: 用以调用 webex bot 的配置.
+      - auth: 存放 token 信息.
+        - token: Webex Bot Token.
+    - accounts: 需要检查 erollments 的 accounts 列表.
 
 5. 以 cps_monitor.py 路径为 `/Users/user/git/akamai-tools/08_cps_monitor/bin/cps_monitor.py` 为例, 通过以下命令查看 dig 是否运行正常:
 
@@ -91,14 +103,15 @@ python3 --version
     -c COMMAND, --command COMMAND
                             Values: [add|remove]. Default: add.
     -s, --slot            List enrolling slots. No command required.
+    -v, --version         show program\'s version number and exit
    ```
 
-6. 设置 alias
+6. 设置 alias:
    - Unix
      以我的环境为例:
      - repo 对应 Shell 变量为 AK_TOOLS_HOME
      - 已经设置过该变量
-     - dig 文件的路径是 ${AK_TOOLS_HOME}/08_cps_monitor/bin/cps_monitor.py:
+     - cps_monitor 文件的路径是 ${AK_TOOLS_HOME}/08_cps_monitor/bin/cps_monitor.py:
        1. 查看当前使用的终端:
 
           ``` shell
@@ -121,12 +134,12 @@ python3 --version
               ```
 
             - 重启电脑生效
-          - 将 alias 配置在 ~/.bashrc 中 (有可能不生效)
+          - 将 alias 配置在 `~/.bashrc` 中 (有可能不生效)
 
-       3. 我使用的是 zsh, 那么环境变量在 ~/.zshrc 中, 则在 ~/.zshrc 中添加如下行:
+       3. 我使用的是 `zsh`, 那么环境变量在 ``~/.zshrc`` 中, 则在 `~/.zshrc` 中添加如下行:
 
           ``` shell
-          # 注意需要放在 export AK_TOOLS_HOME=.... 下面
+          # 注意需要放在 `export AK_TOOLS_HOME=....` 下面
           alias akcm="python3 ${AK_TOOLS_HOME}/08_cps_monitor/bin/cps_monitor.py"
           ```
 
@@ -160,11 +173,13 @@ python3 --version
         }
         ```
 
-     3. 重新打开 PowerShell, 检查 dig 命令是否正常
+     3. 重新打开 PowerShell, 检查 alias 是否生效:
 
         ``` PowerShell
         akcm -v
         ```
+
+7. (可选) 配置 Webex Bot, 并将 webex_sender.py 设置为 contab 定时执行.
 
 ## 0x03. 功能菜单
 
@@ -176,9 +191,10 @@ python3 --version
 |              | 添加 accounts 时以 "\|" 分割 AccountSwitchKey 和 account 名称(无需准确 Account Name, 仅用作输出标识). | -c add -a "1-AAAA\|Example.com" "1-AAAB\|Example2.com" |
 |              | 移除 accounts 时仅需输入 AccountSwitchKey.                                                            | -c remove -a "1-AAAA"                                  |
 |              | 多个值之间以空格分隔, 建议添加引号.                                                                   | -c remove -a "1-AAAA" "1-AAAB"                         |
-| u / users    | (未完成) 操作对象为 users, user 为邮箱地址, 需搭配 command 和 account 使用.                           | -u "<admin@exmple.com>"                                  |
-|              | 多个文件名之间以空格分隔, 建议添加引号.                                                               | -u "<admin@exmple.com>"  "<cdnadmin@exmple.com>"           |
+| u / users    | (未完成) 操作对象为 users, user 为邮箱地址, 需搭配 command 和 account 使用.                           | -u "<admin@exmple.com>"                                |
+|              | 多个文件名之间以空格分隔, 建议添加引号.                                                               | -u "<admin@exmple.com>"  "<cdnadmin@exmple.com>"       |
 | s / slot     | 查询配置中所有 account 正在 enroll 的证书                                                             | -s                                                     |
+| v / version  | 查看脚本版本信息                                                                                      | -v                                                     |
 
 ## 0x04. 样例
 

@@ -1,0 +1,260 @@
+# Akamai Tools: CPS Monitor
+
+Get the pending enrollments list of Akamai CPS with Python libs `edgegrid-python, requests`.
+
+[Chinese Doc](./README.md)
+
+## 0x00. Introduction
+
+- The commands are included in `command` area and text in green are notes.
+
+``` shell
+# All the text in this area are command like:
+python3 --version
+
+# But notes are started with #
+```
+
+## 0x01. Env
+
+- Programing Language:
+  - Python 3.8+
+- Python Libs:
+  - edgegrid-python
+  - requests
+  - pandas
+
+## 0x02. How to install
+
+1. Intall [Python 3.8+](https://www.python.org/downloads/).
+   _**NOTES**_: The command Python3 maybe defferent which depends on the OS you are using. e.g. it's `python3` on Unix-like (Linux/MacOS, Unix for shortly) and `python` on Windoww. Be carefule to replace the command `python3` with `python`.
+   Check the version of python:
+
+    ``` shell
+    python3 --version
+    ```
+
+    output:
+
+    ``` Text
+    Python 3.9.12
+    ```
+
+2. (Mainland China) Set up the mirror of python to speed up the libs installation.
+    Use the following command to set mirrors as TUNA:
+
+    ``` shell
+    python3 -m pip config set global.index-url https://mirror.nju.edu.cn/pypi/web/simple
+    ```
+
+3. Use the following command to install libs `edgegrid-python, requests, pandas`:
+
+    ``` shell
+    python3 -m pip install edgegrid-python requests pandas
+    ```
+
+4. Set up the config file:
+   - Copy `08_cps_monitor/conf/conf.example.json` to `08_cps_monitor/conf/conf.json`
+   - Example:
+
+    ``` json
+    {
+        "api_client": {
+            "section": "default"
+        },
+        "webex": { //Optional if you are only using script on your pc.
+            "auth": {
+                "token": "YOUR TOKEN HERE"
+            },
+            "spaces": {
+            }
+        },
+        "accounts": {
+        }
+    }
+    ```
+
+    - api_client: Please sure about you are created a `.edgerc` file in home folder.
+      - section: The section of API Client in edgerc.
+    - webex: The settings of webex bot.
+      - auth: Bot credential.
+        - token: Webex Bot Token.
+    - accounts: The accounts list which you want to list the erollments.
+
+5. Check the config correctly with command. E.g. the path of cps_monitor.py is `/Users/user/git/akamai-tools/08_cps_monitor/bin/cps_monitor.py`:
+
+   ``` shell
+   python3 /Users/user/git/akamai-tools/08_cps_monitor/bin/cps_monitor.py -h
+   ```
+
+   output:
+
+   ``` shell
+    usage: cps_monitor.py [-h] [-a ACCOUNTS [ACCOUNTS ...]] [-u USERS [USERS ...]] [-c COMMAND] [-s]
+
+    Akamai CPS monitor.
+
+    options:
+    -h, --help            show this help message and exit
+    -a ACCOUNTS [ACCOUNTS ...], --accounts ACCOUNTS [ACCOUNTS ...]
+                            Account switch keys and account name. Format: "ask|name". Default: None.
+    -u USERS [USERS ...], --users USERS [USERS ...]
+                            User IDs. Default: None.
+    -c COMMAND, --command COMMAND
+                            Values: [add|remove]. Default: add.
+    -s, --slot            List enrolling slots. No command required.
+    -v, --version         show program\'s version number and exit
+   ```
+
+6. Setup the alias:
+   - Unix:
+     Here is the settings on my mac:
+     - The system variable of AK_TOOLS_HOME in shell means folder of repo.
+     - Already set up the variable.
+     - The path of cps_monitor if ${AK_TOOLS_HOME}/08_cps_monitor/bin/cps_monitor.py:
+       1. Check the shell which you are using:
+
+          ``` shell
+          echo ${SHELL}
+          ```
+
+          Output:
+
+          ``` Text
+          /bin/zsh
+          ```
+
+       2. There are two options if your ourput like `/bin/bash`:
+
+          - (Recommand) Change the default shell to `zsh`:
+            - Run the command:
+
+              ``` shell
+              chsh -s /bin/zsh
+              ```
+
+            - Restart you compute to make change effect.
+          - Set up alias in `~/.bashrc`. (May not work)
+
+       3. I was added following lines to `~/.zshrc` for I'm using `zsh` and the source file is `~/.zshrc`:
+
+          ``` shell
+          # NOTE: Be sure about the variable is under the `export AK_TOOLS_HOME=....`
+          alias akcm="python3 ${AK_TOOLS_HOME}/08_cps_monitor/bin/cps_monitor.py"
+          ```
+
+       4. Reopen the Terminal and check the alias works or not:
+
+          ``` shell
+          akcm -h
+          ```
+
+   - Windows
+     1. Open your PowerShell and check the config file of it:
+
+        ``` PowerShell
+        echo $PROFILE
+        ```
+
+        Output:
+
+        ``` Text
+        C:\Users\shengjyerao\Documents\PowerShell\Microsoft.PowerShell_profile.ps1
+        ```
+
+        the output is only let you know the path of the config of Powershell, and you need to create it manualy if it not exist.
+
+     2. E.g. the path of cps_monitor.py is "C:\Users\shengjyerao\git\akamai-tools\08_cps_monitor\bin\cps_monitor.py". We can use vscode to open the file and add the following lines:
+
+        ``` PowerShell
+        function akcm {
+            python.exe "C:\Users\shengjyerao\git\akamai-tools\08_cps_monitor\bin\cps_monitor.py" $args
+        }
+        ```
+
+     3. Reopen the PowerShell, and check the alias works or not:
+
+        ``` PowerShell
+        akcm -v
+        ```
+
+7. (Optional) Set up the Webex Bot, then add webex_sender.py to contab.
+
+## 0x03. Functions Menu
+
+| args         | notes                                                                                                                        | simples                                                |
+| :----------- | :--------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------- |
+| h / help     | Display the help                                                                                                             | -h                                                     |
+| c / command  | Options command. Accept: [add/remove]                                                                                        | -c add                                                 |
+| a / accounts | Options target: accounts, the values are AccountSwitchKey which need use 'command' at same time.                             | -c add -a "1-AAAA\|Example.com"                        |
+|              | Add: Split the accounts and AccountSwitchKey with "\|". (No exactly Account Name which only use to show the name in result). | -c add -a "1-AAAA\|Example.com" "1-AAAB\|Example2.com" |
+|              | Remove: Only AccountSwitchKey needed.                                                                                        | -c remove -a "1-AAAA"                                  |
+|              | Remeber to add quote " for values and split with space.                                                                      | -c remove -a "1-AAAA" "1-AAAB"                         |
+| u / users    | (Developing) Options target: users, email as user id. Need to use with 'command' and 'account'.                              | -u "<admin@exmple.com>"                                |
+|              | Remeber to add quote " for values and split with space.                                                                      | -u "<admin@exmple.com>"  "<cdnadmin@exmple.com>"       |
+| s / slot     | Check the pending enrollments in account list.                                                                                | -s                                                     |
+| v / version  | Check the version.                                                                                                            | -v                                                     |
+
+## 0x04. Simples
+
+- Add accounts
+  - input:
+
+    ``` shell
+    akcm -c add -a "1-AAAA|Example.com" "1-AAAB|Example2.com"
+    ```
+
+  - output:
+
+    ``` shell
+
+    ====> Result:
+    Account: 1-AAAA|Example.com added.
+    Account: 1-AAAB|Example2.com added.
+    Config saved.
+    Accounts: ['1-AAAA|Example.com', '1-AAAB|Example2.com'] processed.
+    ```
+
+- Remove accounts
+  - input:
+
+    ``` shell
+    akcm -c remove -a "1-AAAA" "1-AAAB"
+    ```
+
+  - output:
+
+    ``` shell
+
+    ====> Result:
+    Account: 1-AAAA|Example.com removed.
+    Account: 1-AAAB|Example2.com removed.
+    Config saved.
+    Accounts: ['1-AAAA', '1-AAAB'] processed.
+    ```
+
+- List all the pending enrollments in account list
+  - input:
+
+    ``` shell
+    akcm -s
+    ```
+
+  - output:
+
+    ``` shell
+
+    ====> Result:
+    Log Path is: /Users/user/git/akamai-tools/08_cps_monitor/log/cps_monitor_20240331.log
+    Config loaded.
+    Config: /Users/user/.edgerc loaded, Api client section: aaa.
+    Add account: 1-AAAA with contracts: ['1-AAAA']
+    400: ApiError(type=Forbidden, title=Invalid Contract, detail=The current contract does not belong to ACG list., source=Contract ID: 1-AAAA)
+    Add account: 1-AAAB with contracts: ['1-AAABA', '1-AAABB']
+    No enrollments in contract: Example2.com > 1-AAAB
+    Add enrollment: {'Account Name': 'Example2.com', 'Account Switch Key': '1-AAAB', 'Contract': '1-AAABB', 'Common Name': 'example.com', 'Slot ID': 111111}
+    Slots processed.
+    Output: CSV: /Users/user/git/akamai-tools/08_cps_monitor/output/result_20240331.csv.
+    ```
+
+  - Check the pending enrollments in output file.

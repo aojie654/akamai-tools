@@ -232,6 +232,13 @@ def slots_processor(logger: Logger, config_obj: dict):
             log_msg = "slots_processor; Slots processed: {:}|{:}".format(account_ask, account_name)
             logger.info(log_msg)
         print(log_msg)
+        if len(slot_result_list[account_name]["enrollments"]) == 0:
+            log_msg = "slots_processor: Account no pending enrollments: {:}|{:}".format(account_name, account_ask)
+            slot_result_list.pop(account_name)
+            print(log_msg)
+            logger.info(log_msg)
+        else:
+            pass
 
     slot_result_writer(logger=logger, slot_result_list=slot_result_list)
 
@@ -260,13 +267,18 @@ def slot_list_enrollments(logger: Logger, req_obj: Session, api_host: str, accou
         if rsp_obj.status_code == 200:
             rsp_obj_json = rsp_obj.json()
             if len(rsp_obj_json["enrollments"]) == 0:
-                log_msg = "slot_list_enrollments; No enrollments in contract: {:}|{:}".format(account_name, contract_id)
+                log_msg = "slot_list_enrollments; No slots in contract: {:}|{:}".format(account_name, contract_id)
                 print(log_msg)
                 logger.info(log_msg)
             else:
                 slot_result_list[account_name]["enrollments"][contract_id] = dict()
                 for enrollment in rsp_obj_json["enrollments"]:
                     if len(enrollment["pendingChanges"]) == 0:
+                        slot_id = enrollment["assignedSlots"][0]
+                        slot_name = enrollment["csr"]["cn"]
+                        log_msg = "slot_list_enrollments; No pending changes in slot: {:}|{:}".format(slot_id, slot_name)
+                        print(log_msg)
+                        logger.info(log_msg)
                         continue
                     else:
                         for pending_change in enrollment["pendingChanges"]:
@@ -298,32 +310,36 @@ def slot_list_enrollments(logger: Logger, req_obj: Session, api_host: str, accou
 
 
 def slot_result_writer(logger: Logger, slot_result_list: dict):
-    csv_file, csv_path_file, csv_obj, csv_headers = csv_init(logger=logger)
-    account_name_list = list(slot_result_list.keys())
-    account_name_list.sort(key=str.lower)
-    for account_name in account_name_list:
-        account_ask = slot_result_list[account_name]["ask"]
-        contract_id_list = list(slot_result_list[account_name]["enrollments"].keys())
-        contract_id_list.sort(key=str.lower)
-        for contract_id in contract_id_list:
-            slot_id_list = list(slot_result_list[account_name]["enrollments"][contract_id].keys())
-            slot_id_list.sort()
-            for slot_id in slot_id_list:
-                enrollment_item = slot_result_list[account_name]["enrollments"][contract_id][slot_id]
-                enrollment_obj = {
-                    csv_headers[0]: account_name,
-                    csv_headers[1]: account_ask,
-                    csv_headers[2]: contract_id,
-                    csv_headers[3]: enrollment_item["name"],
-                    csv_headers[4]: slot_id,
-                    csv_headers[5]: enrollment_item["type"],
-                }
-                csv_obj.writerow(enrollment_obj)
-    csv_file.close()
+    if len(slot_result_list) == 0:
+        log_msg = "slot_result_writer; No pending enrollments in configured accounts, exit."
+    else:
+        csv_file, csv_path_file, csv_obj, csv_headers = csv_init(logger=logger)
+        account_name_list = list(slot_result_list.keys())
+        account_name_list.sort(key=str.lower)
+        for account_name in account_name_list:
+            account_ask = slot_result_list[account_name]["ask"]
+            contract_id_list = list(slot_result_list[account_name]["enrollments"].keys())
+            contract_id_list.sort(key=str.lower)
+            for contract_id in contract_id_list:
+                slot_id_list = list(slot_result_list[account_name]["enrollments"][contract_id].keys())
+                slot_id_list.sort()
+                for slot_id in slot_id_list:
+                    enrollment_item = slot_result_list[account_name]["enrollments"][contract_id][slot_id]
+                    enrollment_obj = {
+                        csv_headers[0]: account_name,
+                        csv_headers[1]: account_ask,
+                        csv_headers[2]: contract_id,
+                        csv_headers[3]: enrollment_item["name"],
+                        csv_headers[4]: slot_id,
+                        csv_headers[5]: enrollment_item["type"],
+                    }
+                    csv_obj.writerow(enrollment_obj)
+        csv_file.close()
 
-    log_msg = "slot_result_writer; Output CSV path: {:}.".format(csv_path_file)
+        log_msg = "slot_result_writer; Output CSV path: {:}.".format(csv_path_file)
     print(log_msg)
     logger.info(log_msg)
+
     return
 
 
@@ -393,12 +409,19 @@ def csv_init(logger: Logger):
     return csv_file, csv_path_file, csv_obj, csv_headers
 
 
+def get_version():
+    version = "Akamai CPS monitor {:}".format("v0.0.3")
+
+    return version
+
+
 if __name__ == "__main__":
-    arg_parser = argparse.ArgumentParser(description="Akamai CPS monitor.")
-    arg_parser.add_argument("-a", "--accounts", nargs="+", type=str, help="Account switch keys and account name. Format: \"ask|name\". Default: None.")
-    arg_parser.add_argument("-u", "--users", nargs="+", type=str, help="User IDs. Default: None.")
-    arg_parser.add_argument("-c", "--command", type=str, default="add", help="Values: [add|remove]. Default: add.")
-    arg_parser.add_argument("-s", "--slot", action="store_true", help="List enrolling slots. No command required.")
+    arg_parser = argparse.ArgumentParser(prog='Akamai CPS monitor', description="Monitoring Akamai CPS enrollments.")
+    arg_parser.add_argument("-a", "--accounts", dest="accounts", nargs="+", type=str, help="Account switch keys and account name. Format: \"ask|name\". Default: None.")
+    arg_parser.add_argument("-u", "--users", dest="users", nargs="+", type=str, help="User IDs. Default: None.")
+    arg_parser.add_argument("-c", "--command", dest="command", type=str, default="add", help="Values: [add|remove]. Default: add.")
+    arg_parser.add_argument("-s", "--slot", dest="slot", action="store_true", help="List enrolling slots. No command required.")
+    arg_parser.add_argument("-v", "--version", action="version", version=get_version())
 
     # __DEBUG_FLAG__
     # sys.argv = [__file__, "-c", "add", "-a", "1-AAAAA|Example.com"]

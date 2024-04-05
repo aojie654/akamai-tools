@@ -2,6 +2,13 @@
     "api_client": {
         "section": "default"
     },
+    "webex": {
+        "auth": {
+            "token": "YOUR TOKEN HERE"
+        },
+        "spaces": {
+        }
+    },
     "accounts": {
     }
 }
