@@ -53,38 +53,64 @@ def log_init():
     return logger
 
 
-def config_processor(logger: Logger, config_action: str, config_obj: dict = dict()):
-    # Config path
-    name_folder_conf = "conf"
-    path_home = path_init()
-    path_folder_conf = path_home.joinpath(name_folder_conf)
-    name_file_conf = "conf.json"
-    path_file_conf = path_folder_conf.joinpath(name_file_conf)
-    if config_action == "load":
-        if (not path_file_conf.exists):
-            log_msg = "config_processor; Config: {:} not exist, exit.".format(path_file_conf)
+def config_processor(logger: Logger, config_action: str, path_file_str: str = "N/A", config_obj: dict = dict()):
+    try:
+        if path_file_str != "N/A":
+            path_file_conf = Path(path_file_str)
+        else:
+            # Config path
+            name_folder_conf = "conf"
+            path_home = path_init()
+            path_folder_conf = path_home.joinpath(name_folder_conf)
+            name_file_conf = "conf.json"
+            path_file_conf = path_folder_conf.joinpath(name_file_conf)
+        if config_action == "load":
+            if (not path_file_conf.exists):
+                log_msg = "config_processor; Config: {:} not exist, exit.".format(path_file_conf)
+                print(log_msg)
+                logger.error(log_msg)
+                exit()
+
+            with open(file=path_file_conf, mode="r", encoding="utf-8", errors="ignore") as conf_file_obj:
+                conf_file_str = conf_file_obj.read()
+                conf_file_json = json.loads(conf_file_str)
+                conf_file_obj.close()
+
+            # Set log level, default to WARNING
+            # https://docs.python.org/3/library/logging.html#levels
+            log_level = logging.WARNING
+            if ("level" not in conf_file_json["log"].keys()):
+                pass
+            else:
+                log_level_conf = int(conf_file_json["log"]["level"])
+                if log_level_conf in [
+                    logging.INFO,
+                    logging.WARNING,
+                    logging.ERROR,
+                    logging.CRITICAL
+                ]:
+                    log_level = log_level_conf
+                else:
+                    pass
+            log_msg = "config_processor; Set log level to: {:}".format(log_level)
+            logger.setLevel(log_level)
+            log_msg = "config_processor; Config: {:} loaded.".format(path_file_conf)
             print(log_msg)
-            logger.error(log_msg)
-            exit()
+            logger.info(log_msg)
 
-        with open(file=path_file_conf, mode="r", encoding="utf-8", errors="ignore") as conf_file_obj:
-            conf_file_str = conf_file_obj.read()
-            conf_file_json = json.loads(conf_file_str)
-            conf_file_obj.close()
-
-        log_msg = "config_processor; Config: {:} loaded.".format(path_file_conf)
-        print(log_msg)
-        logger.info(log_msg)
-
-        return conf_file_json
-    elif config_action == "save":
-        with open(file=path_file_conf, mode="w+", encoding="utf-8", errors="ignore") as conf_file_obj:
-            config_jsonfy = json.dumps(config_obj, ensure_ascii=False, indent=4)
-            conf_file_obj.write(config_jsonfy)
-            conf_file_obj.close()
-        log_msg = "config_processor; Config: {:} saved.".format(path_file_conf)
-        print(log_msg)
-        logger.info(log_msg)
+            return conf_file_json, logger
+        elif config_action == "save":
+            with open(file=path_file_conf, mode="w+", encoding="utf-8", errors="ignore") as conf_file_obj:
+                config_jsonfy = json.dumps(config_obj, ensure_ascii=False, indent=4)
+                conf_file_obj.write(config_jsonfy)
+                conf_file_obj.close()
+            log_msg = "config_processor; Config: {:} saved.".format(path_file_conf)
+            print(log_msg)
+            logger.info(log_msg)
+    except Exception as e:
+        log_msg = "config_processor; There is an exception:"
+        print("{:} {:}".format(log_msg, e))
+        logger.exception(log_msg)
 
 
 def edgerc_init(logger: Logger, config_obj: dict):
@@ -214,18 +240,21 @@ def slots_processor(logger: Logger, config_obj: dict):
     slot_result_list = dict()
     for account_ask in config_obj["accounts"].keys():
         account_name = config_obj["accounts"][account_ask]["name"]
+        account_users = config_obj["accounts"][account_ask]["users"]
         account = {
             "ask": account_ask,
             "name": account_name,
+            "users": account_users,
         }
         slot_result_list[account_name] = {
             "ask": account_ask,
-            "enrollments": dict()
+            "enrollments": dict(),
+            "users": account_users
         }
         contract_list = contracts_get(logger=logger, api_host=api_host, req_obj=req_obj, account=account)
         if contract_list[0] == "N/A":
             log_msg = "slots_processor; Errors when get contract list: {:}|{:}".format(account_ask, account_name)
-            logger.error(log_msg)
+            logger.warning(log_msg)
         else:
             for contract_id in contract_list:
                 slot_result_list = slot_list_enrollments(logger=logger, req_obj=req_obj, api_host=api_host, account=account, contract_id=contract_id, slot_result_list=slot_result_list)
@@ -260,9 +289,13 @@ def slot_list_enrollments(logger: Logger, req_obj: Session, api_host: str, accou
     contract_id = contract_id.replace("ctr_", "")
     try:
         api_params = {
-            "accountSwitchKey": account_ask,
             "contractId": contract_id,
         }
+        if account_ask != "N/A":
+            api_params["accountSwitchKey"]= account_ask
+        else:
+            pass
+
         rsp_obj = req_obj.request(method=api_method, url=api_url, params=api_params, headers=api_headers)
         if rsp_obj.status_code == 200:
             rsp_obj_json = rsp_obj.json()
@@ -302,9 +335,9 @@ def slot_list_enrollments(logger: Logger, req_obj: Session, api_host: str, accou
             log_msg = "slot_list_enrollments; {:}: {:}|{:}: {:}".format(rsp_obj.status_code, account_name, contract_id, rsp_obj.text)
             raise Exception(log_msg)
     except Exception as e:
-        log_msg = e
-        print(log_msg)
-        logger.error(log_msg)
+        log_msg = "slot_list_enrollments; There is an exception: "
+        print("{:} {:}".format(log_msg, e))
+        logger.exception(log_msg)
 
     return slot_result_list
 
@@ -320,6 +353,7 @@ def slot_result_writer(logger: Logger, slot_result_list: dict):
             account_ask = slot_result_list[account_name]["ask"]
             contract_id_list = list(slot_result_list[account_name]["enrollments"].keys())
             contract_id_list.sort(key=str.lower)
+            users_list = slot_result_list[account_name]["users"]
             for contract_id in contract_id_list:
                 slot_id_list = list(slot_result_list[account_name]["enrollments"][contract_id].keys())
                 slot_id_list.sort()
@@ -332,6 +366,7 @@ def slot_result_writer(logger: Logger, slot_result_list: dict):
                         csv_headers[3]: enrollment_item["name"],
                         csv_headers[4]: slot_id,
                         csv_headers[5]: enrollment_item["type"],
+                        csv_headers[6]: users_list,
                     }
                     csv_obj.writerow(enrollment_obj)
         csv_file.close()
@@ -350,9 +385,11 @@ def contracts_get(logger: Logger, api_host: str, req_obj: Session, account: dict
     api_method = "GET"
     api_uri = "/papi/v1/contracts"
     api_url = "https://{:}{:}".format(api_host, api_uri)
-    api_params = {
-        "accountSwitchKey": account_ask,
-    }
+    api_params = dict()
+    if account_ask != "N/A":
+        api_params["accountSwitchKey"]= account_ask
+    else:
+        pass
     api_headers = {
         "PAPI-Use-Prefixes": "true",
         "accept": "application/json",
@@ -371,9 +408,9 @@ def contracts_get(logger: Logger, api_host: str, req_obj: Session, account: dict
             log_msg = "contracts_get; {:}: {:}: {:}".format(rsp_obj.status_code, account_name, rsp_obj.text)
             raise Exception(log_msg)
     except Exception as e:
-        log_msg = e
-        print(log_msg)
-        logger.error(log_msg)
+        log_msg = "contracts_get; There is an exception: "
+        print("{:} {:}".format(log_msg, e))
+        logger.exception(log_msg)
         contract_list.append("N/A")
 
     finally:
@@ -402,7 +439,15 @@ def csv_init(logger: Logger):
         csv_path_folder.mkdir()
     logger.info(log_msg)
     csv_file = open(file=csv_path_file, mode="w+", encoding="utf-8", errors="ignore")
-    csv_headers = ["Account Name", "Account Switch Key", "Contract", "Common Name", "Slot ID", "Change Type"]
+    csv_headers = [
+        "Account Name",
+        "Account Switch Key",
+        "Contract",
+        "Common Name",
+        "Slot ID",
+        "Change Type",
+        "Users",
+    ]
     csv_obj = csv.DictWriter(f=csv_file, fieldnames=csv_headers)
     csv_obj.writeheader()
 
@@ -429,7 +474,7 @@ if __name__ == "__main__":
     args = arg_parser.parse_args()
     if (args.accounts or args.slot):
         logger = log_init()
-        config_obj = config_processor(logger=logger, config_action="load")
+        config_obj, logger = config_processor(logger=logger, config_action="load")
         if (args.accounts or args.users):
             if args.accounts:
                 if (not args.users):

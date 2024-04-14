@@ -1,6 +1,6 @@
 # Akamai Tools: CPS Monitor
 
-使用 Python 库 `edgegrid-python, requests, pandas, tabulate` 获取 CPS 证书 enroll 状态
+使用 Python 库 `edgegrid-python, requests` 获取 CPS 证书 enroll 状态
 
 [English Doc](./README_en.md)
 
@@ -22,8 +22,6 @@ python3 --version
 - Python Libs:
   - edgegrid-python
   - requests
-  - pandas
-  - tabulate
 
 ## 0x02. 安装步骤
 
@@ -38,7 +36,7 @@ python3 --version
     输出:
 
     ``` Text
-    Python 3.9.12
+    Python 3.10.12
     ```
 
 2. (内地) 配置 python 镜像源以加快 python 库安装.
@@ -48,7 +46,7 @@ python3 --version
     python3 -m pip config set global.index-url https://mirror.nju.edu.cn/pypi/web/simple
     ```
 
-3. 通过以下命令，为 Python 安装第三方库 `edgegrid-python, requests, pandas`:
+3. 通过以下命令，为 Python 安装第三方库 `edgegrid-python, requests`:
 
     ``` shell
     python3 -m pip install edgegrid-python requests
@@ -60,27 +58,32 @@ python3 --version
 
     ``` json
     {
+        "log": {
+            "level": 30
+        },
         "api_client": {
             "section": "default"
         },
-        "webex": { // 仅在本地运行时可忽略
-            "auth": {
-                "token": "YOUR TOKEN HERE"
-            },
-            "spaces": {
-            }
-        },
         "accounts": {
+         "FC-1-1AAAA:1-AAAA": {
+            "name": "Example Account",
+            "users": [
+                "cdnadmin@example.com"
+            ]
+        },
         }
     }
     ```
 
-    - api_client: 请确保在 home 目录下正确存放了 .edgerc 文件
-      - section: edgerc 中需要使用的 API Client 所在的 section.
-    - webex: 用以调用 webex bot 的配置.
-      - auth: 存放 token 信息.
-        - token: Webex Bot Token.
-    - accounts: 需要检查 erollments 的 accounts 列表.
+    - log: (Dict/Object) 日志配置
+      - level: (Int) 日志等级. 支持 INFO - ERROR. 默认 WARINING.
+        - 参考: <https://docs.python.org/3/library/logging.html#levels>
+    - api_client: (Dict/Object) 请确保在 home 目录下正确存放了 .edgerc 文件
+      - section: (String) edgerc 中需要使用的 API Client 所在的 section.
+    - accounts: (Dict/Object) 需要检查 erollments 的 accounts 列表.
+      - account_ask: (String) 用以检查证书列表的 accountSwitchKey. 当值为 "N/A" 时, 不使用 accountSwitchKey 参数调用 CPS API, 即检查 API Client 所在 Account 证书信息
+        - name: (String) Account 显示名称. 不要求完全正确, 仅在输出使用.
+        - users: (List/Array) 用户列表. 可用以集成其他脚本发送运行结果.
 
 5. 以 cps_monitor.py 路径为 `/Users/user/git/akamai-tools/08_cps_monitor/bin/cps_monitor.py` 为例, 通过以下命令查看 dig 是否运行正常:
 
@@ -254,7 +257,7 @@ python3 --version
     400: ApiError(type=Forbidden, title=Invalid Contract, detail=The current contract does not belong to ACG list., source=Contract ID: 1-AAAA)
     Add account: 1-AAAB with contracts: ['1-AAABA', '1-AAABB']
     No enrollments in contract: Example2.com > 1-AAAB
-    Add enrollment: {'Account Name': 'Example2.com', 'Account Switch Key': '1-AAAB', 'Contract': '1-AAABB', 'Common Name': 'example.com', 'Slot ID': 111111}
+    Add enrollment: {'Account Name': 'Example2.com', 'Account Switch Key': '1-AAAB', 'Contract': '1-AAABB', 'Common Name': 'example.com', 'Slot ID': 111111, 'Users': ['cdnadmin@example.com']}
     Slots processed.
     Output: CSV: /Users/user/git/akamai-tools/08_cps_monitor/output/result_20240331.csv.
     ```

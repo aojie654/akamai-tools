@@ -1,6 +1,6 @@
 # Akamai Tools: CPS Monitor
 
-Get the pending enrollments list of Akamai CPS with Python libs `edgegrid-python, requests, pandas, tabulate`.
+Get the pending enrollments list of Akamai CPS with Python libs `edgegrid-python, requests`.
 
 [Chinese Doc](./README.md)
 
@@ -22,8 +22,6 @@ python3 --version
 - Python Libs:
   - edgegrid-python
   - requests
-  - pandas
-  - tabulate
 
 ## 0x02. How to install
 
@@ -38,7 +36,7 @@ python3 --version
     output:
 
     ``` Text
-    Python 3.9.12
+    Python 3.10.12
     ```
 
 2. (Mainland China) Set up the mirror of python to speed up the libs installation.
@@ -48,10 +46,10 @@ python3 --version
     python3 -m pip config set global.index-url https://mirror.nju.edu.cn/pypi/web/simple
     ```
 
-3. Use the following command to install libs `edgegrid-python, requests, pandas`:
+3. Use the following command to install libs `edgegrid-python, requests`:
 
     ``` shell
-    python3 -m pip install edgegrid-python requests pandas
+    python3 -m pip install edgegrid-python requests
     ```
 
 4. Set up the config file:
@@ -60,27 +58,32 @@ python3 --version
 
     ``` json
     {
+        "log": {
+            "level": 30
+        },
         "api_client": {
             "section": "default"
         },
-        "webex": { //Optional if you are only using script on your pc.
-            "auth": {
-                "token": "YOUR TOKEN HERE"
-            },
-            "spaces": {
-            }
-        },
         "accounts": {
+         "FC-1-1AAAA:1-AAAA": {
+            "name": "Example Account",
+            "users": [
+                "cdnadmin@example.com"
+            ]
+        },
         }
     }
     ```
 
-    - api_client: Please sure about you are created a `.edgerc` file in home folder.
-      - section: The section of API Client in edgerc.
-    - webex: The settings of webex bot.
-      - auth: Bot credential.
-        - token: Webex Bot Token.
-    - accounts: The accounts list which you want to list the erollments.
+    - log: (Dict/Object) Log config
+      - level: (Int) Log level. Support INFO to ERROR. WARINING as default.
+        - Referer: <https://docs.python.org/3/library/logging.html#levels>
+    - api_client: (Dict/Object) Please sure about you are created a `.edgerc` file in home folder.
+      - section: (String) The section of API Client in edgerc.
+    - accounts: (Dict/Object) The accounts list which you want to list the erollments.
+      - account_ask: (String) Will not user parameter: accountSwitchKey when calling CPS API, and will check the certificates in account which API Client located in.
+        - name: (String) Account name without exactly match and only use for output.
+        - users: (List/Array) User list. Can be use to send the script output to other platforms after integration with other tools.
 
 5. Check the config correctly with command. E.g. the path of cps_monitor.py is `/Users/user/git/akamai-tools/08_cps_monitor/bin/cps_monitor.py`:
 
@@ -253,7 +256,7 @@ python3 --version
     400: ApiError(type=Forbidden, title=Invalid Contract, detail=The current contract does not belong to ACG list., source=Contract ID: 1-AAAA)
     Add account: 1-AAAB with contracts: ['1-AAABA', '1-AAABB']
     No enrollments in contract: Example2.com > 1-AAAB
-    Add enrollment: {'Account Name': 'Example2.com', 'Account Switch Key': '1-AAAB', 'Contract': '1-AAABB', 'Common Name': 'example.com', 'Slot ID': 111111}
+    Add enrollment: {'Account Name': 'Example2.com', 'Account Switch Key': '1-AAAB', 'Contract': '1-AAABB', 'Common Name': 'example.com', 'Slot ID': 111111, 'Users': ['cdnadmin@example.com']}
     Slots processed.
     Output: CSV: /Users/user/git/akamai-tools/08_cps_monitor/output/result_20240331.csv.
     ```
