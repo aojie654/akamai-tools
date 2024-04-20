@@ -1,6 +1,6 @@
 # Akamai Tools: CPS Monitor
 
-使用 Python 库 `edgegrid-python, requests` 获取 CPS 证书 enroll 状态
+使用 Python 库 `edgegrid-python, requests, pandas` 获取 CPS 证书 enroll 状态
 
 [English Doc](./README_en.md)
 
@@ -22,6 +22,7 @@ python3 --version
 - Python Libs:
   - edgegrid-python
   - requests
+  - pandas
 
 ## 0x02. 安装步骤
 
@@ -46,10 +47,10 @@ python3 --version
     python3 -m pip config set global.index-url https://mirror.nju.edu.cn/pypi/web/simple
     ```
 
-3. 通过以下命令，为 Python 安装第三方库 `edgegrid-python, requests`:
+3. 通过以下命令，为 Python 安装第三方库 `edgegrid-python, requests, pandas`:
 
     ``` shell
-    python3 -m pip install edgegrid-python requests
+    python3 -m pip install edgegrid-python requests pandas
     ```
 
 4. 修改配置文件:
@@ -65,12 +66,12 @@ python3 --version
             "section": "default"
         },
         "accounts": {
-         "FC-1-1AAAA:1-AAAA": {
-            "name": "Example Account",
-            "users": [
-                "cdnadmin@example.com"
-            ]
-        },
+          "FC-1-1AAAA:1-AAAA": {
+              "name": "Example Account",
+              "users": [
+                  "cdnadmin@example.com"
+              ]
+          },
         }
     }
     ```
@@ -93,21 +94,22 @@ python3 --version
 
    输出:
 
-   ``` shell
-    usage: cps_monitor.py [-h] [-a ACCOUNTS [ACCOUNTS ...]] [-u USERS [USERS ...]] [-c COMMAND] [-s]
+   ``` text
+    usage: Akamai CPS monitor [-h] [-a ACCOUNTS [ACCOUNTS ...]] [-u USERS [USERS ...]] [-c COMMAND] [-s] [-o] [-v]
 
-    Akamai CPS monitor.
+    Monitoring Akamai CPS enrollments.
 
     options:
     -h, --help            show this help message and exit
     -a ACCOUNTS [ACCOUNTS ...], --accounts ACCOUNTS [ACCOUNTS ...]
-                            Account switch keys and account name. Format: "ask|name". Default: None.
+                          Account switch keys and account name. Format: "ask^name". Default: None.
     -u USERS [USERS ...], --users USERS [USERS ...]
-                            User IDs. Default: None.
+                          User IDs. Default: None.
     -c COMMAND, --command COMMAND
-                            Values: [add|remove]. Default: add.
+                          Values: [add|remove]. Default: add.
     -s, --slot            List enrolling slots. No command required.
-    -v, --version         show program\'s version number and exit
+    -o, --optimize        Optimize the accounts and user order in conf file. No command required.
+    -v, --version         show program's version number and exit
    ```
 
 6. 设置 alias:
@@ -198,6 +200,7 @@ python3 --version
 | u / users    | (未完成) 操作对象为 users, user 为邮箱地址, 需搭配 command 和 account 使用.                           | -u "<admin@exmple.com>"                                |
 |              | 多个文件名之间以空格分隔, 建议添加引号.                                                               | -u "<admin@exmple.com>"  "<cdnadmin@exmple.com>"       |
 | s / slot     | 查询配置中所有 account 正在 enroll 的证书                                                             | -s                                                     |
+| o / optimize | 将配置文件中的 Account 信息按照 Account 名称进行排序                                                  | -o                                                     |
 | v / version  | 查看脚本版本信息                                                                                      | -v                                                     |
 
 ## 0x04. 样例
@@ -206,7 +209,7 @@ python3 --version
   - 输入:
 
     ``` shell
-    akcm -c add -a "1-AAAA|Example.com" "1-AAAB|Example2.com"
+    akcm -c add -a "1-AAAA^Example.com" "1-AAAB^Example2.com"
     ```
 
   - 输出:
@@ -214,10 +217,10 @@ python3 --version
     ``` shell
 
     ====> Result:
-    Account: 1-AAAA|Example.com added.
-    Account: 1-AAAB|Example2.com added.
+    Account: 1-AAAA^Example.com added.
+    Account: 1-AAAB^Example2.com added.
     Config saved.
-    Accounts: ['1-AAAA|Example.com', '1-AAAB|Example2.com'] processed.
+    Accounts: ['1-AAAA^Example.com', '1-AAAB^Example2.com'] processed.
     ```
 
 - 移除 accounts
@@ -232,8 +235,8 @@ python3 --version
     ``` shell
 
     ====> Result:
-    Account: 1-AAAA|Example.com removed.
-    Account: 1-AAAB|Example2.com removed.
+    Account: 1-AAAA^Example.com removed.
+    Account: 1-AAAB^Example2.com removed.
     Config saved.
     Accounts: ['1-AAAA', '1-AAAB'] processed.
     ```
@@ -247,19 +250,21 @@ python3 --version
 
   - 输出:
 
-    ``` shell
-
-    ====> Result:
-    Log Path is: /Users/user/git/akamai-tools/08_cps_monitor/log/cps_monitor_20240331.log
-    Config loaded.
-    Config: /Users/user/.edgerc loaded, Api client section: aaa.
-    Add account: 1-AAAA with contracts: ['1-AAAA']
-    400: ApiError(type=Forbidden, title=Invalid Contract, detail=The current contract does not belong to ACG list., source=Contract ID: 1-AAAA)
-    Add account: 1-AAAB with contracts: ['1-AAABA', '1-AAABB']
-    No enrollments in contract: Example2.com > 1-AAAB
-    Add enrollment: {'Account Name': 'Example2.com', 'Account Switch Key': '1-AAAB', 'Contract': '1-AAABB', 'Common Name': 'example.com', 'Slot ID': 111111, 'Users': ['cdnadmin@example.com']}
-    Slots processed.
-    Output: CSV: /Users/user/git/akamai-tools/08_cps_monitor/output/result_20240331.csv.
+    ``` text
+    init_log; Log folder:/opt/git/akamai-tools/08_cps_monitor/log exist, create skipped.
+    init_log; Log Path is: /opt/git/akamai-tools/08_cps_monitor/log/cps_monitor_20240420.log
+    processor_conf; Conf: /opt/git/akamai-tools/08_cps_monitor/conf/conf.json loaded.
+    init_edgerc; Conf: /home/user/.edgerc loaded, Api client section: default
+    get_contracts; Add account with contracts: 1-AAAA|Example.com: ['1-C-AAAAA','1-C-AAAAB','1-C-AAAAC']
+    get_slot_enrollments; No slots in contract: Example.com|1-C-AAAAA
+    get_slot_enrollments; No pending changes in slot: 11111|www.example.com
+    get_slot_expire; Slot expire: 111112|example.com|2024-05-30|39
+    get_slot_enrollments; Add enrollment from contract: Example.com|1-C-AAAAB: 1111112|example.com|renewal|2024-05-30|39
+    get_slot_enrollments; There is an exception:  get_slot_enrollments; 400: Example.com|1-C-AAAAC: ApiError(type=Forbidden, title=Invalid Contract, detail=The current contract does not belong to ACG list., source=Contract ID: 1-C-AAAAC)
+    processor_slot; Slots processed: 1-AAAA|Example.com
+    result_writer_slot; Output dir: /opt/git/akamai-tools/08_cps_monitor/output exist, create skipped.
+    result_writer_slot; Output JSON: /opt/git/akamai-tools/08_cps_monitor/output/result_20240420.json, CSV: /opt/git/akamai-tools/08_cps_monitor/output/result_20240420.csv.
+    processor_slot; Slot processing end.
     ```
 
-  - 检查输出文件 查看 enroll 的证书列表
+  - 检查输出文件, 查看 enroll 的证书列表
