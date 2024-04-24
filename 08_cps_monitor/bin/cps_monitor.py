@@ -531,8 +531,8 @@ if __name__ == "__main__":
     arg_parser.add_argument("-a", "--accounts", dest="accounts", nargs="+", type=str, help="Account switch keys and account name. Format: \"ask^name\". Default: None.")
     arg_parser.add_argument("-u", "--users", dest="users", nargs="+", type=str, help="User IDs. Default: None.")
     arg_parser.add_argument("-c", "--command", dest="command", type=str, default="add", help="Values: [add|remove]. Default: add.")
-    arg_parser.add_argument("-s", "--slot", dest="slot", action="store_true", help="List enrolling slots. No command required.")
-    arg_parser.add_argument("-o", "--optimize", dest="optimize", action="store_true", help="Optimize the accounts and user order in conf file. No command required.")
+    arg_parser.add_argument("-s", "--slot", dest="slot", action="store_true", help="List enrolling slots. No arguments required.")
+    arg_parser.add_argument("-o", "--optimize", dest="optimize", action="store_true", help="Optimize the accounts and user order in conf file. No arguments required.")
     arg_parser.add_argument("-v", "--version", action="version", version=get_version())
 
     args = arg_parser.parse_args()
