@@ -2,7 +2,7 @@
 import argparse
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from logging import Logger
 from pathlib import Path
 
@@ -140,7 +140,7 @@ def get_slot_enrollments(logger: Logger, req_obj: Session, api_host: str, accoun
                                 slot_id = enrollment["assignedSlots"][0]
                                 slot_cn = enrollment["csr"]["cn"]
                                 slot_type = pending_change["changeType"]
-                                slot_expire, slot_day = get_slot_expire(logger=logger, account=account, slot_enroll_id=slot_enroll_id, slot_cn=slot_cn, slot_id=slot_id, req_obj=req_obj, api_host=api_host)
+                                slot_expire_time_str, slot_left_day_str = get_slot_expire(logger=logger, account=account, slot_enroll_id=slot_enroll_id, slot_cn=slot_cn, slot_id=slot_id, req_obj=req_obj, api_host=api_host)
                                 slot_result = {
                                     col_names[0]: account_name,
                                     col_names[1]: account_ask,
@@ -148,13 +148,13 @@ def get_slot_enrollments(logger: Logger, req_obj: Session, api_host: str, accoun
                                     col_names[3]: slot_cn,
                                     col_names[4]: slot_enroll_id,
                                     col_names[5]: slot_id,
-                                    col_names[6]: slot_expire,
-                                    col_names[7]: slot_day,
+                                    col_names[6]: slot_expire_time_str,
+                                    col_names[7]: slot_left_day_str,
                                     col_names[8]: slot_type,
                                     col_names[9]: account_users,
                                 }
                                 slot_result_list.append(slot_result)
-                                log_msg = "{:}; Add enrollment from contract: {:}|{:}: {:}|{:}|{:}|{:}|{:}".format(get_slot_enrollments.__name__, account_name, contract_id, slot_id, slot_cn, slot_type, slot_expire, slot_day)
+                                log_msg = "{:}; Add enrollment from contract: {:}|{:}: {:}|{:}|{:}|{:}|{:}".format(get_slot_enrollments.__name__, account_name, contract_id, slot_id, slot_cn, slot_type, slot_expire_time_str, slot_left_day_str)
                                 print(log_msg)
                                 logger.info(log_msg)
                             else:
@@ -171,8 +171,8 @@ def get_slot_enrollments(logger: Logger, req_obj: Session, api_host: str, accoun
 
 
 def get_slot_expire(logger: Logger, account: dict, slot_enroll_id: str, slot_id: int, slot_cn: str, req_obj: Session, api_host: str):
-    slot_expire = "N/A"
-    slot_day = "N/A"
+    slot_expire_time_str = "N/A"
+    slot_left_day_str = "N/A"
     account_ask = account["ask"]
     account_name = account["name"]
 
@@ -193,18 +193,20 @@ def get_slot_expire(logger: Logger, account: dict, slot_enroll_id: str, slot_id:
         if len(rsp_obj_json["certificates"]) == 0:
             log_msg = "{:}; No change history in certificate: {:}|{:}".format(get_slot_expire.__name__, slot_id, slot_cn)
         else:
-            slot_expire_str = rsp_obj_json["certificates"][0]["primaryCertificate"]["expiry"]
-            slot_expire = slot_expire_str.split("T")[0]
-            slot_expire_dt = datetime.strptime(slot_expire, "%Y-%m-%d")
-            slot_day = (slot_expire_dt - datetime.today()).days
-            log_msg = "{:}; Slot expire: {:}|{:}|{:}|{:}".format(get_slot_expire.__name__, slot_id, slot_cn, slot_expire, slot_day)
+            # expiry example: 2024-05-09T03:30:14Z
+            slot_expire_time_str = rsp_obj_json["certificates"][0]["primaryCertificate"]["expiry"]
+            slot_expire_time_dt = datetime.strptime(slot_expire_time_str, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+            slot_left_time_delta = slot_expire_time_dt - datetime.now(tz=timezone.utc)
+            slot_expire_time_str = slot_expire_time_dt.strftime("%Y-%m-%d %H:%M:%S")
+            slot_left_day_str = slot_left_time_delta.days
+            log_msg = "{:}; Slot expire: {:}|{:}|{:}|{:}".format(get_slot_expire.__name__, slot_id, slot_cn, slot_expire_time_str, slot_left_day_str)
         print(log_msg)
         logger.info(log_msg)
     else:
         log_msg = "{:}; {:}: {:}|{:}: {:}".format(get_slot_expire.__name__, rsp_obj.status_code, account_name, slot_id, rsp_obj.text)
         raise Exception(log_msg)
 
-    return slot_expire, slot_day
+    return slot_expire_time_str, slot_left_day_str
 
 
 def get_users(logger: Logger, conf_obj: dict, account: dict):
@@ -226,8 +228,8 @@ def init_col_names():
         "Common Name",
         "Enrollment ID",
         "Slot ID",
-        "Expire",
-        "Day",
+        "Expire Time (UTC)",
+        "Day Left",
         "Change Type",
         "Users",
     ]
@@ -429,7 +431,7 @@ def processor_slot(logger: Logger, path_dict: dict, conf_obj: dict):
             logger.info(log_msg)
         print(log_msg)
 
-    result_writer_slot(logger=logger, path_dict=path_dict, slot_result_list=slot_result_list)
+    result_writer_slot(logger=logger, path_dict=path_dict, slot_result_list=slot_result_list, col_names=col_names)
 
     log_msg = "{:}; Slot processing end.".format(processor_slot.__name__)
 
@@ -486,7 +488,7 @@ def remove_accounts(logger: Logger, conf_obj: dict, account: str):
     return conf_obj
 
 
-def result_writer_slot(logger: Logger, path_dict: dict, slot_result_list: list):
+def result_writer_slot(logger: Logger, path_dict: dict, slot_result_list: list, col_names: list):
     if len(slot_result_list) == 0:
         log_msg = "{:}; No pending enrollments in confured accounts, exit.".format(result_writer_slot.__name__)
         print(log_msg)
@@ -503,7 +505,7 @@ def result_writer_slot(logger: Logger, path_dict: dict, slot_result_list: list):
         logger.info(log_msg)
 
         slot_result_pd = pandas.DataFrame.from_dict(slot_result_list)
-        col_names_sort = ["Account Name", "Expire"]
+        col_names_sort = [col_names[0], col_names[6]]
         slot_result_pd = slot_result_pd.sort_values(by=col_names_sort, key=lambda col: col.str.lower())
         # print(slot_result_pd)
 
