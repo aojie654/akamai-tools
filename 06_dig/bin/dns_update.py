@@ -12,7 +12,7 @@ import requests
 
 fop = Path(__file__).parents[1].joinpath("conf").joinpath("dns_tmp.json")
 req_url = "https://dnschecker.org/"
-req_method="GET"
+req_method = "GET"
 req_params = {}
 req_payload = {}
 req_headers = {
@@ -40,7 +40,13 @@ else:
     hc = rep_obj.text
     soup = BeautifulSoup(hc, "lxml")
     tb_t = soup.find("tbody")
-    dns_result = dict()
+    dns_result = {
+        "local": {
+            "DNS": "local",
+            "Location": "Local ISP",
+            "Provider": "Local ISP"
+        }
+    }
     for tr_t in tb_t:
         if tr_t.name != "tr":
             continue
