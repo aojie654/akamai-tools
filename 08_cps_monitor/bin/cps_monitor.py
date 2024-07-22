@@ -2,13 +2,15 @@
 import argparse
 import json
 import logging
+import time
 from datetime import datetime, timezone
 from logging import Logger
 from pathlib import Path
+import re
 
+import pandas
 from akamai.edgegrid import EdgeGridAuth, EdgeRc
 from requests import Session
-import pandas
 
 
 def add_accounts(logger: Logger, conf_obj: dict, account: str):
@@ -73,8 +75,26 @@ def get_contracts(logger: Logger, api_host: str, req_obj: Session, account: dict
     }
 
     try:
+        rsp_obj_json = {
+            "Type": "429 Too Many Requests",
+            "Title": "Too Many Requests",
+            "Detail": "You have exhausted your API Request Quota. Retry after: 10 seconds."
+        }
+
         rsp_obj = req_obj.request(method=api_method, url=api_url, params=api_params, headers=api_headers)
-        if rsp_obj.status_code == 200:
+        while rsp_obj.status_code == 429:
+            rsp_obj_json = rsp_obj.json()
+            rsp_obj_json_detail = rsp_obj_json["Detail"]
+            retry_time = re.search(r"Retry after: (\d+) seconds", rsp_obj_json_detail).group(1)
+            sleep_time = int(retry_time) + 2
+            log_msg = "{:}; {:}; Rate limited, sleep for {:} seconds.".format(get_slot_enrollments.__name__, rsp_obj_json_detail, sleep_time)
+            print(log_msg)
+            logger.info(log_msg)
+            time.sleep(sleep_time)
+            rsp_obj = req_obj.request(method=api_method, url=api_url, params=api_params, headers=api_headers)
+        else:
+            pass
+        if 200 <= rsp_obj.status_code <= 299:
             rsp_obj_json = rsp_obj.json()
             for item in rsp_obj_json["contracts"]["items"]:
                 contract_list.append(item["contractId"])
@@ -107,18 +127,30 @@ def get_slot_enrollments(logger: Logger, req_obj: Session, api_host: str, accoun
     api_headers = {
         "accept": "application/vnd.akamai.cps.enrollments.v11+json",
     }
-    contract_id = contract_id.replace("ctr_", "")
+    api_params = dict()
     try:
-        api_params = {
-            "contractId": contract_id,
-        }
+        if contract_id != "N/A":
+            contract_id = contract_id.replace("ctr_", "")
+            api_params["contractId"] = contract_id,
         if account_ask != "N/A":
             api_params["accountSwitchKey"] = account_ask
         else:
             pass
 
         rsp_obj = req_obj.request(method=api_method, url=api_url, params=api_params, headers=api_headers)
-        if rsp_obj.status_code == 200:
+        while rsp_obj.status_code == 429:
+            rsp_obj_json = rsp_obj.json()
+            rsp_obj_json_detail = rsp_obj_json["Detail"]
+            retry_time = re.search(r"Retry after: (\d+) seconds", rsp_obj_json_detail).group(1)
+            sleep_time = int(retry_time) + 2
+            log_msg = "{:}; {:}; Rate limited, sleep for {:} seconds.".format(get_slot_enrollments.__name__, rsp_obj_json_detail, sleep_time)
+            print(log_msg)
+            logger.warn(log_msg)
+            time.sleep(sleep_time)
+            rsp_obj = req_obj.request(method=api_method, url=api_url, params=api_params, headers=api_headers)
+        else:
+            pass
+        if 200 <= rsp_obj.status_code <= 299:
             rsp_obj_json = rsp_obj.json()
             if len(rsp_obj_json["enrollments"]) == 0:
                 log_msg = "{:}; No slots in contract: {:}|{:}".format(get_slot_enrollments.__name__, account_name, contract_id)
@@ -188,7 +220,22 @@ def get_slot_expire(logger: Logger, account: dict, slot_enroll_id: str, slot_id:
     else:
         pass
     rsp_obj = req_obj.request(method=api_method, url=api_url, params=api_params, headers=api_headers)
-    if rsp_obj.status_code == 200:
+    while rsp_obj.status_code == 429:
+        log_msg = "{:}; {:}".format(get_slot_expire.__name__, rsp_obj.text)
+        print(log_msg)
+        logger.warn(log_msg)
+        rsp_obj_json = rsp_obj.json()
+        rsp_obj_json_detail = rsp_obj_json["Detail"]
+        retry_time = re.search(r"Retry after: (\d+) seconds", rsp_obj_json_detail).group(1)
+        sleep_time = int(retry_time) + 2
+        log_msg = "{:}; Rate limited, sleep for {:} seconds.".format(get_slot_enrollments.__name__, sleep_time)
+        print(log_msg)
+        logger.info(log_msg)
+        time.sleep(sleep_time)
+        rsp_obj = req_obj.request(method=api_method, url=api_url, params=api_params, headers=api_headers)
+    else:
+        pass
+    if 200 <= rsp_obj.status_code <= 299:
         rsp_obj_json = rsp_obj.json()
         if len(rsp_obj_json["certificates"]) == 0:
             log_msg = "{:}; No change history in certificate: {:}|{:}".format(get_slot_expire.__name__, slot_id, slot_cn)
@@ -205,7 +252,6 @@ def get_slot_expire(logger: Logger, account: dict, slot_enroll_id: str, slot_id:
     else:
         log_msg = "{:}; {:}: {:}|{:}: {:}".format(get_slot_expire.__name__, rsp_obj.status_code, account_name, slot_id, rsp_obj.text)
         raise Exception(log_msg)
-
     return slot_expire_time_str, slot_left_day_str
 
 
@@ -420,15 +466,18 @@ def processor_slot(logger: Logger, path_dict: dict, conf_obj: dict):
             "name": account_name,
             "users": account_users,
         }
-        contract_list = get_contracts(logger=logger, api_host=api_host, req_obj=req_obj, account=account)
-        if contract_list[0] == "N/A":
-            log_msg = "{:}; Errors when get contract list: {:}|{:}".format(processor_slot.__name__, account_ask, account_name)
-            logger.warning(log_msg)
-        else:
-            for contract_id in contract_list:
-                slot_result_list = get_slot_enrollments(logger=logger, req_obj=req_obj, api_host=api_host, account=account, contract_id=contract_id, slot_result_list=slot_result_list, col_names=col_names)
-            log_msg = "{:}; Slots processed: {:}|{:}".format(processor_slot.__name__, account_ask, account_name)
-            logger.info(log_msg)
+        # contract_list = get_contracts(logger=logger, api_host=api_host, req_obj=req_obj, account=account)
+        # if contract_list[0] == "N/A":
+        #     log_msg = "{:}; Errors when get contract list: {:}|{:}".format(processor_slot.__name__, account_ask, account_name)
+        #     logger.warning(log_msg)
+        # else:
+        #     for contract_id in contract_list:
+        #         slot_result_list = get_slot_enrollments(logger=logger, req_obj=req_obj, api_host=api_host, account=account, contract_id=contract_id, slot_result_list=slot_result_list, col_names=col_names)
+        #     log_msg = "{:}; Slots processed: {:}|{:}".format(processor_slot.__name__, account_ask, account_name)
+        #     logger.info(log_msg)
+        slot_result_list = get_slot_enrollments(logger=logger, req_obj=req_obj, api_host=api_host, account=account, contract_id="N/A", slot_result_list=slot_result_list, col_names=col_names)
+        log_msg = "{:}; Slots processed: {:}|{:}.".format(processor_slot.__name__, account_ask, account_name)
+        logger.info(log_msg)
         print(log_msg)
 
     result_writer_slot(logger=logger, path_dict=path_dict, slot_result_list=slot_result_list, col_names=col_names)
