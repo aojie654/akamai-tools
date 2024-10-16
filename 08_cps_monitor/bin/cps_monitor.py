@@ -2,11 +2,11 @@
 import argparse
 import json
 import logging
+import re
 import time
 from datetime import datetime, timezone
 from logging import Logger
 from pathlib import Path
-import re
 
 import pandas
 from akamai.edgegrid import EdgeGridAuth, EdgeRc
@@ -56,6 +56,7 @@ def add_user(logger: Logger, conf_obj: dict, user_set: set, account: str):
 
     return conf_obj
 
+
 def get_slot_enrollments(logger: Logger, req_obj: Session, api_host: str, account: dict, slot_result_list: list, col_names: list):
     account_ask = account["ask"]
     account_name = account["name"]
@@ -82,7 +83,7 @@ def get_slot_enrollments(logger: Logger, req_obj: Session, api_host: str, accoun
             sleep_time = int(retry_time) + 2
             log_msg = "{:}; Rate limited, sleep for {:} seconds. Response: {:}".format(get_slot_enrollments.__name__, sleep_time, rsp_obj.text)
             print(log_msg)
-            logger.warn(log_msg)
+            logger.warning(log_msg)
             time.sleep(sleep_time)
             rsp_obj = req_obj.request(method=api_method, url=api_url, params=api_params, headers=api_headers)
         else:
@@ -107,7 +108,7 @@ def get_slot_enrollments(logger: Logger, req_obj: Session, api_host: str, accoun
                         continue
                     else:
                         for pending_change in enrollment["pendingChanges"]:
-                            if ("changeType" in pending_change.keys()):
+                            if (("changeType" in pending_change.keys()) and (pending_change["changeType"] is not None)):
                                 slot_enroll_id = enrollment["id"]
                                 slot_id = enrollment["assignedSlots"][0]
                                 slot_cn = enrollment["csr"]["cn"]
@@ -166,7 +167,7 @@ def get_slot_expire(logger: Logger, account: dict, slot_enroll_id: str, slot_id:
         sleep_time = int(retry_time) + 2
         log_msg = "{:}; Rate limited, sleep for {:} seconds. Response: {:}".format(get_slot_enrollments.__name__, sleep_time, rsp_obj.text)
         print(log_msg)
-        logger.warn(log_msg)
+        logger.warning(log_msg)
         time.sleep(sleep_time)
         rsp_obj = req_obj.request(method=api_method, url=api_url, params=api_params, headers=api_headers)
     else:
@@ -175,16 +176,28 @@ def get_slot_expire(logger: Logger, account: dict, slot_enroll_id: str, slot_id:
         rsp_obj_json = rsp_obj.json()
         if len(rsp_obj_json["certificates"]) == 0:
             log_msg = "{:}; No change history in certificate: {:}|{:}".format(get_slot_expire.__name__, slot_id, slot_cn)
+            print(log_msg)
+            logger.info(log_msg)
         else:
             # expiry example: 2024-05-09T03:30:14Z
-            slot_expire_time_str = rsp_obj_json["certificates"][0]["primaryCertificate"]["expiry"]
-            slot_expire_time_dt = datetime.strptime(slot_expire_time_str, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
-            slot_left_time_delta = slot_expire_time_dt - datetime.now(tz=timezone.utc)
-            slot_expire_time_str = slot_expire_time_dt.strftime("%Y-%m-%d %H:%M:%S")
-            slot_left_day_str = slot_left_time_delta.days
-            log_msg = "{:}; Slot expire: {:}|{:}|{:}|{:}".format(get_slot_expire.__name__, slot_id, slot_cn, slot_expire_time_str, slot_left_day_str)
-        print(log_msg)
-        logger.info(log_msg)
+            # We need to notice the expiry time should use the one which the "deploymentStatus" is "active"
+            flag_cert_prod = False
+            for cert_item in rsp_obj_json["certificates"]:
+                slot_expire_time_str = cert_item["primaryCertificate"]["expiry"]
+                if cert_item["deploymentStatus"] == "active":
+                    slot_expire_time_dt = datetime.strptime(slot_expire_time_str, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+                    slot_left_time_delta = slot_expire_time_dt - datetime.now(tz=timezone.utc)
+                    slot_expire_time_str = slot_expire_time_dt.strftime("%Y-%m-%d %H:%M:%S")
+                    slot_left_day_str = slot_left_time_delta.days
+                    log_msg = "{:}; Slot expire: {:}|{:}|{:}|{:}".format(get_slot_expire.__name__, slot_id, slot_cn, slot_expire_time_str, slot_left_day_str)
+                    flag_cert_prod = True
+                else:
+                    log_msg = "{:}; Not prodction: {:}|{:}|{:}".format(get_slot_expire.__name__, slot_id, slot_cn, slot_expire_time_str)
+                print(log_msg)
+                logger.info(log_msg)
+
+                if flag_cert_prod:
+                    break
     else:
         log_msg = "{:}; {:}: {:}: {:}".format(get_slot_expire.__name__, rsp_obj.status_code, account_name, slot_id, rsp_obj.text)
         raise Exception(log_msg)
@@ -401,11 +414,11 @@ def processor_slot(logger: Logger, path_dict: dict, conf_obj: dict):
             "name": account_name,
             "users": account_users,
         }
-        log_msg = "{:}; Slots processed start: {:}|{:}.".format(processor_slot.__name__, account_ask, account_name)
+        log_msg = "{:}; Slots process start: {:}|{:}.".format(processor_slot.__name__, account_ask, account_name)
         logger.info(log_msg)
         print(log_msg)
         slot_result_list = get_slot_enrollments(logger=logger, req_obj=req_obj, api_host=api_host, account=account, slot_result_list=slot_result_list, col_names=col_names)
-        log_msg = "{:}; Slots processed complete: {:}|{:}.".format(processor_slot.__name__, account_ask, account_name)
+        log_msg = "{:}; Slots process complete: {:}|{:}.".format(processor_slot.__name__, account_ask, account_name)
         logger.info(log_msg)
         print(log_msg)
 
