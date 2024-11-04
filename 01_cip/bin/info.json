@@ -1,12 +1,18 @@
 {
     "version": {
         "Name": "Akamai Tools - cip",
-        "Version": "0.2.4",
-        "Time": "2022-08-05 17:14:56",
+        "Version": "0.2.6",
+        "Time": "2024-06-21 14:55:05",
         "Author": "Shengjie Ao",
         "Email": "sao@akamai.com"
     },
     "log": {
+        "0.2.6": [
+            "修复域名匹配"
+        ],
+        "0.2.5": [
+            "修复python 新版本中 regex 语法错误"
+        ],
         "0.2.4": [
             "修复 asnum"
         ],
