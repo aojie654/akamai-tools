@@ -89,10 +89,10 @@ def process_input_files(files, dns_type, output_exception):
 
 
 def resolve_hostname(hostname, dns_type, output_exception):
+    output_result_hostname = dict()
     try:
         # Get DNS dict
         dns_dict = get_dns()
-        output_result_hostname = dict()
         dns_resolver = resolver.Resolver()
         for dns_server in dns_dict.keys():
             hostname_t = hostname
