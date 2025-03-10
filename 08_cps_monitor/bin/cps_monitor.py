@@ -3,6 +3,7 @@ import argparse
 import json
 import logging
 import re
+import sys
 import time
 from datetime import datetime, timezone
 from logging import Logger
@@ -96,13 +97,16 @@ def get_slot_enrollments(logger: Logger, req_obj: Session, api_host: str, accoun
                 logger.info(log_msg)
             else:
                 for enrollment in rsp_obj_json["enrollments"]:
+                    slot_cn = enrollment["csr"]["cn"]
+                    if len(enrollment["assignedSlots"]) == 0:
+                        log_msg = "{:}; There is no assgiend slot for cert: {:}.".format(get_slot_enrollments.__name__, slot_cn)
+                        print(log_msg)
+                        logger.info(log_msg)
+                        slot_id = "N/A"
+                    else:
+                        slot_id = enrollment["assignedSlots"][0]
                     if len(enrollment["pendingChanges"]) == 0:
-                        if len(enrollment["assignedSlots"]) == 0:
-                            log_msg = "{:}; There is no assgiend slot for cert: {:}".format(get_slot_enrollments.__name__, slot_cn)
-                        else:
-                            slot_id = enrollment["assignedSlots"][0]
-                            slot_cn = enrollment["csr"]["cn"]
-                            log_msg = "{:}; No pending changes in slot: {:}|{:}".format(get_slot_enrollments.__name__, slot_id, slot_cn)
+                        log_msg = "{:}; No pending changes in slot: {:}|{:}".format(get_slot_enrollments.__name__, slot_id, slot_cn)
                         print(log_msg)
                         logger.info(log_msg)
                         continue
@@ -110,8 +114,6 @@ def get_slot_enrollments(logger: Logger, req_obj: Session, api_host: str, accoun
                         for pending_change in enrollment["pendingChanges"]:
                             if (("changeType" in pending_change.keys()) and (pending_change["changeType"] is not None)):
                                 slot_enroll_id = enrollment["id"]
-                                slot_id = enrollment["assignedSlots"][0]
-                                slot_cn = enrollment["csr"]["cn"]
                                 slot_type = pending_change["changeType"]
                                 slot_expire_time_str, slot_left_day_str = get_slot_expire(logger=logger, account=account, slot_enroll_id=slot_enroll_id, slot_cn=slot_cn, slot_id=slot_id, req_obj=req_obj, api_host=api_host)
                                 slot_result = {
@@ -527,6 +529,9 @@ if __name__ == "__main__":
     arg_parser.add_argument("-s", "--slot", dest="slot", action="store_true", help="List enrolling slots. No arguments required.")
     arg_parser.add_argument("-o", "--optimize", dest="optimize", action="store_true", help="Optimize the accounts and user order in conf file. No arguments required.")
     arg_parser.add_argument("-v", "--version", action="version", version=get_version())
+
+    # __DEBUG__: Input as check slot
+    # sys.argv = [__file__, "-s"]
 
     args = arg_parser.parse_args()
     if (args.accounts or args.slot or args.optimize):
