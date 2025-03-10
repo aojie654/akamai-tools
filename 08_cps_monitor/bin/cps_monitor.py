@@ -531,7 +531,7 @@ if __name__ == "__main__":
     arg_parser.add_argument("-v", "--version", action="version", version=get_version())
 
     # __DEBUG__: Input as check slot
-    sys.argv = [__file__, "-s"]
+    # sys.argv = [__file__, "-s"]
 
     args = arg_parser.parse_args()
     if (args.accounts or args.slot or args.optimize):
