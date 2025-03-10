@@ -115,7 +115,7 @@ def get_slot_enrollments(logger: Logger, req_obj: Session, api_host: str, accoun
                             if (("changeType" in pending_change.keys()) and (pending_change["changeType"] is not None)):
                                 slot_enroll_id = enrollment["id"]
                                 slot_type = pending_change["changeType"]
-                                slot_expire_time_str, slot_left_day_str = get_slot_expire(logger=logger, account=account, slot_enroll_id=slot_enroll_id, slot_cn=slot_cn, slot_id=slot_id, req_obj=req_obj, api_host=api_host)
+                                slot_expire_time_str, slot_left_day = get_slot_expire(logger=logger, account=account, slot_enroll_id=slot_enroll_id, slot_cn=slot_cn, slot_id=slot_id, req_obj=req_obj, api_host=api_host)
                                 slot_result = {
                                     col_names[0]: account_name,
                                     col_names[1]: account_ask,
@@ -123,12 +123,12 @@ def get_slot_enrollments(logger: Logger, req_obj: Session, api_host: str, accoun
                                     col_names[3]: slot_enroll_id,
                                     col_names[4]: slot_id,
                                     col_names[5]: slot_expire_time_str,
-                                    col_names[6]: slot_left_day_str,
+                                    col_names[6]: slot_left_day,
                                     col_names[7]: slot_type,
                                     col_names[8]: account_users,
                                 }
                                 slot_result_list.append(slot_result)
-                                log_msg = "{:}; Add enrollment: {:}: {:}|{:}|{:}|{:}|{:}".format(get_slot_enrollments.__name__, account_name, slot_id, slot_cn, slot_type, slot_expire_time_str, slot_left_day_str)
+                                log_msg = "{:}; Add enrollment: {:}: {:}|{:}|{:}|{:}|{:}".format(get_slot_enrollments.__name__, account_name, slot_id, slot_cn, slot_type, slot_expire_time_str, slot_left_day)
                                 print(log_msg)
                                 logger.info(log_msg)
                             else:
@@ -146,7 +146,7 @@ def get_slot_enrollments(logger: Logger, req_obj: Session, api_host: str, accoun
 
 def get_slot_expire(logger: Logger, account: dict, slot_enroll_id: str, slot_id: int, slot_cn: str, req_obj: Session, api_host: str):
     slot_expire_time_str = "N/A"
-    slot_left_day_str = "N/A"
+    slot_left_day = "N/A"
     account_ask = account["ask"]
     account_name = account["name"]
 
@@ -190,8 +190,8 @@ def get_slot_expire(logger: Logger, account: dict, slot_enroll_id: str, slot_id:
                     slot_expire_time_dt = datetime.strptime(slot_expire_time_str, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
                     slot_left_time_delta = slot_expire_time_dt - datetime.now(tz=timezone.utc)
                     slot_expire_time_str = slot_expire_time_dt.strftime("%Y-%m-%d %H:%M:%S")
-                    slot_left_day_str = slot_left_time_delta.days
-                    log_msg = "{:}; Slot expire: {:}|{:}|{:}|{:}".format(get_slot_expire.__name__, slot_id, slot_cn, slot_expire_time_str, slot_left_day_str)
+                    slot_left_day = slot_left_time_delta.days
+                    log_msg = "{:}; Slot expire: {:}|{:}|{:}|{:}".format(get_slot_expire.__name__, slot_id, slot_cn, slot_expire_time_str, slot_left_day)
                     flag_cert_prod = True
                 else:
                     log_msg = "{:}; Not prodction: {:}|{:}|{:}".format(get_slot_expire.__name__, slot_id, slot_cn, slot_expire_time_str)
@@ -203,7 +203,7 @@ def get_slot_expire(logger: Logger, account: dict, slot_enroll_id: str, slot_id:
     else:
         log_msg = "{:}; {:}: {:}: {:}".format(get_slot_expire.__name__, rsp_obj.status_code, account_name, slot_id, rsp_obj.text)
         raise Exception(log_msg)
-    return slot_expire_time_str, slot_left_day_str
+    return slot_expire_time_str, slot_left_day
 
 
 def get_users(logger: Logger, conf_obj: dict, account: dict):
@@ -531,7 +531,7 @@ if __name__ == "__main__":
     arg_parser.add_argument("-v", "--version", action="version", version=get_version())
 
     # __DEBUG__: Input as check slot
-    # sys.argv = [__file__, "-s"]
+    sys.argv = [__file__, "-s"]
 
     args = arg_parser.parse_args()
     if (args.accounts or args.slot or args.optimize):
