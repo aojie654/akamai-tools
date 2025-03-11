@@ -1,66 +1,69 @@
 # Akamai Tools: dig
 
-使用 Python 库 `dnspython` 进行多 DNS 解析
+Resolve the domains with multiple DNS with Python Lib: `dnspython`
 
-[English Doc](./README_en.md)
+[中文](./README.md)
 
-## 0x00. 说明
+## 0x00. Introduction
 
-- 通常情况下的文字是描述, 在方框中的文字是终端中运行的命令.
+- Almost all the text are description but the text in square are commands need to run in terminal.
 
 ``` shell
-# 框框里面的都是命令, 例如:
+# All the text in square are commands like:
 python3 --version
 
-# 以 # 开头的都是注释, 可以不用复制
+# But the text start with # are note, which can be ignored when copy the commands
 ```
 
-## 0x01. 环境
+## 0x01. Program & Packges
 
 - Programing Language:
   - Python 3.8+
 - Python Libs:
   - dnspython
 
-## 0x02. 安装步骤
+## 0x02. How To Install
 
-1. 安装 [Python 3.8+](https://www.python.org/downloads/).
-   _**注意**_: Python3 在不同系统中的命令略有不同, Unix-like (Linux/MacOS, 本repo内简称 Unix, 下同) 为 `python3`, Windows 为 `python`, 因此Windows 环境下注意替换命令中的 `python3` 为 `python`.
-   在终端中查看 Python 版本:
+1. Install [Python 3.8+](https://www.python.org/downloads/).
+
+   _**Note**_: The commands of python may different depends on the Systems, like the `python3` on Unix-like (Linux/MacOS, called Unix in this repo), and `python` on Windows, so remember to replace the `python3` with `python` on Windows.
+
+   Check the version of Python in terminal:
 
     ``` shell
     python3 --version
     ```
 
-    输出:
+    Output:
 
     ``` Text
     Python 3.9.12
     ```
 
-2. (内地) 配置 python 镜像源以加快 python 库安装.
-    通过以下命令, 为 Python pypi 配置 清华大学 镜像源:
+2. (China Mainland) Set up the mirror lib of Python to speed up the lib install.
+
+    Set up Nanjing University as mirror of Python pypi:
 
     ``` shell
     python3 -m pip config set global.index-url https://mirror.nju.edu.cn/pypi/web/simple
     ```
 
-3. 通过以下命令，为 Python 安装第三方库 dnspython:
+3. Install Python libs: dnspython:
 
     ``` shell
     python3 -m pip install dnspython
     ```
 
-4. 修改配置文件:
-   1. 复制 `06_dig/conf/dns.example.json` 为 `06_dig/conf/dns.json`
-   2. (可选) 根据个人喜好, 按照格式修改 DNS 服务器列表
-5. 以 dig.py 路径为 `/Users/user/git/akamai-tools/06_dig/bin/dig.py` 为例, 通过以下命令查看 dig 是否运行正常:
+4. Update config file:
+   1. Copy `06_dig/conf/dns.example.json` to `06_dig/conf/dns.json`
+   2. (Optional) Update DNS server list
+5. For e.g. the path `dig.py` is `/Users/user/git/akamai-tools/06_dig/bin/dig.py`, validate the `dig` works or not:
 
    ``` shell
    python3 /Users/user/git/akamai-tools/06_dig/bin/dig.py -i www.example.com
    ```
 
-   输出:
+   Output:
 
    ``` shell
     Working on hostname: www.example.com of DNS: 127.0.0.1, result: 93.184.216.34
@@ -87,66 +90,66 @@ python3 --version
     }
    ```
 
-6. 设置 alias
+6. Set up alias
    - Unix
-     以我的环境为例:
-     - repo 对应 Shell 变量为 AK_TOOLS_HOME
-     - 已经设置过该变量
-     - dig 文件的路径是 ${AK_TOOLS_HOME}/06_dig/bin/dig.py:
-       1. 查看当前使用的终端:
+     For example:
+     - The shell variable of this repo is `AK_TOOLS_HOME`
+     - Already setup the variable
+     - The path of `dig` is `${AK_TOOLS_HOME}/06_dig/bin/dig.py`:
+       1. Check the shell which we are using:
 
           ``` shell
           echo ${SHELL}
           ```
 
-          输出:
+          Output:
 
           ``` Text
           /bin/zsh
           ```
 
-       2. 如果发现输出是 `/bin/bash`, 有两个选择:
+       2. We have 2 options if output is `/bin/bash`:
 
-          - (推荐) 更改默认终端为 `zsh`:
-            - 运行命令:
+          - (Recommond) Change the default shell to `zsh`:
+            - Run command:
 
               ``` shell
               chsh -s /bin/zsh
               ```
 
-            - 重启电脑生效
-          - 将 alias 配置在 ~/.bashrc 中 (有可能不生效)
+            - Restart the computer
+          - Setup alias in ~/.bashrc (May not works!)
 
-       3. 我使用的是 zsh, 那么环境变量在 ~/.zshrc 中, 则在 ~/.zshrc 中添加如下行:
+       3. The shell I using is `zsh`, so I need to update the `~/.zshrc` to add the following lines:
 
           ``` shell
-          # 注意需要放在 export AK_TOOLS_HOME=.... 下面
+          # Remeber add the lines below export AK_TOOLS_HOME=....
           alias akdig="python3 ${AK_TOOLS_HOME}/06_dig/bin/dig.py"
           ```
 
-       4. 重新打开 Terminal, 进行一次查询检查配置是否正常:
+       4. Re-open the Terminal to check if the alias works:
 
           ``` shell
           akdig -v
           ```
 
    - Windows
-     1. 打开 PowerShell, 通过以下命令查看 PowerShell 配置文件路径:
+     1. Start PowerShell and check the path of PowerShell config:
 
         ``` PowerShell
         echo $PROFILE
         ```
 
-        输出:
+        Output:
 
         ``` Text
         C:\Users\shengjyerao\Documents\PowerShell\Microsoft.PowerShell_profile.ps1
         ```
 
-        这是输出只是指明 PowerShell 通过读取这个文件的内容来加载自定义的内容，应该把自定义配置信息写在这个文件里面，但并不代表这个文件一定存在，没有这个文件时需要手动创建。
+        Note: The output only shows the config path that PowerShell will load from but the file may not exist at yet. We need to create one if file not exist.
 
-     2. 以文件路径 "C:\Users\shengjyerao\git\akamai-tools\06_dig\bin\dig.py" 为例。
-       通过vscode打开上面获取到的 PowerShell 配置文件, 添加以下内容并保存:
+     2. For example, the path of `dig` is "C:\Users\shengjyerao\git\akamai-tools\06_dig\bin\dig.py":
+        Create a PowerShell config with following lines:
 
         ``` PowerShell
         function akdig {
@@ -154,42 +157,44 @@ python3 --version
         }
         ```
 
-     3. 重新打开 PowerShell, 检查 dig 命令是否正常
+     3. Re-open PowerShell and check `dig` works or not:
 
         ``` PowerShell
         akdig -v
         ```
 
-## 0x03. 功能菜单
+## 0x03. Menu
 
-| 参数           | 说明                                                           | 样例                                                 |
-| :------------- | :------------------------------------------------------------- | :--------------------------------------------------- |
-| h / help       | 显示帮助                                                       |                                                      |
-| i / inputs     | 对 -i 之后的内容作为输入进行查询.                              | -i www.akamai.com                                    |
-|                | 多个值之间以空格分隔.                                          | -i www.akamai.com www.akamai.cn                      |
-| f / files      | (暂未完成) 以文件作为输入进行查询, 并将查询结果追加到该文件内. | -f /Users/user/iptest-1.txt                          |
-|                | 多个文件名之间以空格分隔.                                      | -f /Users/user/iptest-1.txt /Users/user/iptest-2.txt |
-| o / output     | 输出格式, 支持 json/csv/txt                                    | -o csv                                               |
-|                | 多个输出格式以空格分割.                                        | -o csv txt json                                      |
-| t / type       | 查询记录类型. 默认为 A 记录                                    | -t CNAME                                             |
-| s / save       | (暂未完成) 保存至与域名和输出格式向对应的文件.                 | -s                                                   |
-|                | 以参数为`-i www.akamai.com -o csv, txt` 为例, 输出文件为:      |                                                      |
-|                | www.akamai.com.csv 和 www.akamai.com.txt                       |                                                      |
-| d / dedulicate | 查询结果去重, 仅对 txt 格式输出有效                            | -d                                                   |
-| p / processing | 不显示当前进度                                                 | -p                                                   |
-| e / exception  | 显示查询过程中的异常提示. 仅当输出格式为 txt 时有效            | -p                                                   |
-| v / version    | 查看 dig 版本信息                                              |                                                      |
+| Args               | Note                                                                                             | Example                                              |
+| :----------------- | :----------------------------------------------------------------------------------------------- | :--------------------------------------------------- |
+| No args / h / help | Display help                                                                                     |                                                      |
+| i / inputs         | Lookup the arg(s) after -i                                                                       | -i www.akamai.com                                    |
+|                    | Split with whitespace for multiple values.                                                       | -i www.akamai.com www.akamai.cn                      |
+| f / files          | Lookup the content of file and add the result to it.                                             | -f /Users/user/iptest-1.txt                          |
+|                    | Split with whitespace for multiple files.                                                        | -f /Users/user/iptest-1.txt /Users/user/iptest-2.txt |
+| o / output         | Output format, support: json/csv/txt                                                             | -o csv                                               |
+|                    | Split with whitespace for multiple format.                                                       | -o csv txt json                                      |
+| t / type           | Records type. Default: A.                                                                        | -t CNAME                                             |
+| s / save           | Save to file. Use domain as filename when value is: h, and other values as filename              | -s h                                                 |
+|                    | For e.g. filename of `-i www.akamai.com -t CNAME -o csv txt -s h`:                               |                                                      |
+|                    | `www.akamai.com_CNAME.csv` and `www.akamai.com_CNAME.txt`                                        |                                                      |
+|                    | For e.g. filename of `-i www.akamai.com  www.akamai.cn -t CNAME -o csv txt -s 20231010_example`: | -s 20231010_example                                  |
+|                    | `20231010_example_CNAME.csv` and `20231010_example_CNAME.txt`                                    |                                                      |
+| d / dedulicate     | Remove the duplicated values. Only `txt` fromat support.                                         | -d                                                   |
+| p / processing     | Display the processing.                                                                          | -p                                                   |
+| e / exception      | Display the exceptions during processing                                                         | -p                                                   |
+| v / version        | Check the version of `dig.py`                                                                    |                                                      |
 
-## 0x04. 样例
+## 0x04. Exmample
 
-- 查询域名
-  - 输入:
+- Domain lookup
+  - Input:
 
     ``` shell
     akdig -i www.akamai.com www.akamai.com.cn
     ```
 
-  - 输出:
+  - Output:
 
     ``` shell
 
@@ -252,14 +257,14 @@ python3 --version
     }
     ```
 
-- 显示查询进度
-  - 输入:
+- Display the processing
+  - Input:
 
     ``` shell
     akdig -i www.akamai.com -p
     ```
 
-  - 输出:
+  - Output:
 
     ``` shell
     Working on hostname: www.akamai.com of DNS: 127.0.0.1, result: Exception: The resolution lifetime expired after 1.106 seconds: Server 127.0.0.1 UDP port 53 answered The DNS operation timed out.
@@ -300,14 +305,14 @@ python3 --version
     }
     ```
 
-- csv, txt 输出:
-  - 输入:
+- Format: `csv`, `txt`:
+  - Input:
 
     ``` shell
     akdig -i www.akamai.com -o csv txt
     ```
 
-  - 输出:
+  - Output:
 
     ``` shell
         ====> Result:
@@ -326,14 +331,14 @@ python3 --version
     }
     ```
 
-- txt 输出去重:
-  - 输入:
+- Remove duplicated values for format: `txt`:
+  - Input:
 
     ``` shell
     akdig -i www.akamai.com -o txt -d
     ```
 
-  - 输出:
+  - Output:
 
     ``` shell
 
@@ -345,14 +350,14 @@ python3 --version
     }
     ```
 
-- txt 显示查询异常:
-  - 输入:
+- Display exceptions for format: `txt`:
+  - Input:
 
     ``` shell
     akdig -i www.akamai.com -o txt -e
     ```
 
-  - 输出:
+  - Output:
 
     ``` shell
         ====> Result:

@@ -498,7 +498,8 @@ def result_writer_slot(logger: Logger, path_dict: dict, slot_result_list: list, 
         logger.info(log_msg)
 
         slot_result_pd = pandas.DataFrame.from_dict(slot_result_list)
-        col_names_sort = [col_names[0], col_names[6]]
+        # col_names_sort = [col_names[0], col_names[6]]
+        col_names_sort = [col_names[0], col_names[5]]
         slot_result_pd = slot_result_pd.sort_values(by=col_names_sort, key=lambda col: col.str.lower())
         # print(slot_result_pd)
 

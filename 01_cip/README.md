@@ -2,7 +2,7 @@
 
 使用 Python 库 `akadata` 调用 `Akamai Edgescape API` 进行 ip2location 查询
 
-[English Doc](./README_en.md)
+[English](./README_en.md)
 
 ## 0x00. 说明
 
@@ -24,10 +24,12 @@ python3 --version
   - dnspython
   - requests
 
-## 0x02. 安装步骤
+## 0x02. 安装步骤 How To Install
 
 1. 安装 [Python 3.8+](https://www.python.org/downloads/).
+
    _**注意**_: Python3 在不同系统中的命令略有不同, Unix-like (Linux/MacOS, 本repo内简称 Unix, 下同) 为 `python3`, Windows 为 `python`, 因此Windows 环境下注意替换命令中的 `python3` 为 `python`.
+
    在终端中查看 Python 版本:
 
     ``` shell
@@ -41,7 +43,8 @@ python3 --version
     ```
 
 2. (内地) 配置 python 镜像源以加快 python 库安装.
-    通过以下命令, 为 Python pypi 配置 清华大学 镜像源:
+
+    通过以下命令, 为 Python pypi 配置 南京大学 镜像源:
 
     ``` shell
     python3 -m pip config set global.index-url https://mirror.nju.edu.cn/pypi/web/simple

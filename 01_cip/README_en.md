@@ -1,21 +1,21 @@
 # Akamai Tools: Check IP
 
-使用 Python 库 `akadata` 调用 `Akamai Edgescape API` 进行 ip2location 查询
+Check location info of IP with Python lib: `akadata` via `Akamai Edgescape API`
 
-[English Doc](./README_en.md)
+[中文](./README.md)
 
-## 0x00. 说明
+## 0x00. Introduction
 
-- 通常情况下的文字是描述, 在方框中的文字是终端中运行的命令.
+- Almost all the text are description but the text in square are commands need to run in terminal.
 
 ``` shell
-# 框框里面的都是命令, 例如:
+# All the text in square are commands like:
 python3 --version
 
-# 以 # 开头的都是注释, 可以不用复制
+# But the text start with # are note, which can be ignored when copy the commands
 ```
 
-## 0x01. 环境
+## 0x01. Program & Packges
 
 - Programing Language:
   - Python 3.8+
@@ -24,114 +24,117 @@ python3 --version
   - dnspython
   - requests
 
-## 0x02. 安装步骤
+## 0x02. How To Install
 
-1. 安装 [Python 3.8+](https://www.python.org/downloads/).
-   _**注意**_: Python3 在不同系统中的命令略有不同, Unix-like (Linux/MacOS, 本repo内简称 Unix, 下同) 为 `python3`, Windows 为 `python`, 因此Windows 环境下注意替换命令中的 `python3` 为 `python`.
-   在终端中查看 Python 版本:
+1. Install [Python 3.8+](https://www.python.org/downloads/).
+
+   _**Note**_: The commands of python may different depends on the Systems, like the `python3` on Unix-like (Linux/MacOS, called Unix in this repo), and `python` on Windows, so remember to replace the `python3` with `python` on Windows.
+
+   Check the version of Python in terminal:
 
     ``` shell
     python3 --version
     ```
 
-    输出:
+    Output:
 
     ``` Text
     Python 3.9.12
     ```
 
-2. (内地) 配置 python 镜像源以加快 python 库安装.
-    通过以下命令, 为 Python pypi 配置 清华大学 镜像源:
+2. (China Mainland) Set up the mirror lib of Python to speed up the lib install.
+
+    Set up Nanjing University as mirror of Python pypi:
 
     ``` shell
     python3 -m pip config set global.index-url https://mirror.nju.edu.cn/pypi/web/simple
     ```
 
-3. 通过以下命令，为 Python 安装第三方库 akadata, dnspython, requests:
+3. Install Python libs: akadata, dnspython, requests:
 
     ``` shell
     python3 -m pip install akadata dnspython requests
     ```
 
-4. 修改配置文件:
-   1. 复制 `01_cip/bin/config.example.ini` 为 `01_cip/bin/config.ini`
-   2. (可选) 修改 `[DEFAULT]` 中的 EdgeSacpe 服务器请求超时时间及字段显示信息
-   3. 修改 `[EDGESCAPE]` 中的 EdgeScape 服务器信息
-   4. 修改 `[UPDATE]` 中的 cip 更新服务器信息
-5. 以 cip.py 路径为 `/Users/user/git/akamai-tools/01_cip/bin/cip.py` 为例, 通过以下命令查看 cip 是否运行正常:
+4. Update the config file:
+   1. Copy the `01_cip/bin/config.example.ini` to `01_cip/bin/config.ini`.
+   2. (Optional) Edit the Timeout and Field limit in section: `[DEFAULT]`
+   3. Edit the server info of EdgeScape in the section: `[EDGESCAPE]`.
+   4. Edit the server info of update in section: `[UPDATE]`
+5. For e.g. the path `cip.py` is `/Users/user/git/akamai-tools/01_cip/bin/cip.py`, validate the cip works or not:
 
    ``` shell
    python3 /Users/user/git/akamai-tools/01_cip/bin/cip.py -i 1.1.1.1
    ```
 
-   输出:
+   Output:
 
    ``` Text
-   ===== SERVER: gcps-es.srip.net:21001
+   ===== SERVER: es.server.com:21001
    ===== DNS: Local DNS
    1.1.1.1: [ region: Australia, region_code: NSW, city: SYDNEY, network: mil, company: APNIC_and_Cloudflare_DNS_Resolver_project, timezone: GMT+10, default_answer: N ]
    ```
 
-6. 设置 alias
+6. Set up alias
    - Unix
-     以我的环境为例:
-     - repo 对应 Shell 变量为 AK_TOOLS_HOME
-     - 已经设置过该变量
-     - cip文件的路径是 ${AK_TOOLS_HOME}/01_cip/bin/cip.py:
-       1. 查看当前使用的终端:
+     For example:
+     - The shell variable of this repo is `AK_TOOLS_HOME`
+     - Already setup the variable
+     - The path of `cip` is `${AK_TOOLS_HOME}/01_cip/bin/cip.py`:
+       1. Check the shell which we are using:
 
           ``` shell
           echo ${SHELL}
           ```
 
-          输出:
+          Output:
 
           ``` Text
           /bin/zsh
           ```
 
-       2. 如果发现输出是 `/bin/bash`, 有两个选择:
+       2. We have 2 options if output is `/bin/bash`:
 
-          - (推荐) 更改默认终端为 `zsh`:
-            - 运行命令:
+          - (Recommond) Change the default shell to `zsh`:
+            - Run command:
 
               ``` shell
               chsh -s /bin/zsh
               ```
 
-            - 重启电脑生效
-          - 将 alias 配置在 ~/.bashrc 中 (有可能不生效)
+            - Restart the computer
+          - Setup alias in ~/.bashrc (May not works!)
 
-       3. 我使用的是 zsh, 那么环境变量在 ~/.zshrc 中, 则在 ~/.zshrc 中添加如下行:
+       3. The shell I using is `zsh`, so I need to update the `~/.zshrc` to add the following lines:
 
           ``` shell
-          # 注意需要放在 export AK_TOOLS_HOME=.... 下面
+          # Remeber add the lines below export AK_TOOLS_HOME=....
           alias akcip="python3 ${AK_TOOLS_HOME}/01_cip/bin/cip.py"
           ```
 
-       4. 重新打开 Terminal, 进行一次查询检查配置是否正常:
+       4. Re-open the Terminal to check if the alias works:
 
           ``` shell
           akcip -v
           ```
 
    - Windows
-     1. 打开 PowerShell, 通过以下命令查看 PowerShell 配置文件路径:
+     1. Start PowerShell and check the path of PowerShell config:
 
         ``` PowerShell
         echo $PROFILE
         ```
 
-        输出:
+        Output:
 
         ``` Text
         C:\Users\shengjyerao\Documents\PowerShell\Microsoft.PowerShell_profile.ps1
         ```
 
-        这是输出只是指明 PowerShell 通过读取这个文件的内容来加载自定义的内容，应该把自定义配置信息写在这个文件里面，但并不代表这个文件一定存在，没有这个文件时需要手动创建。
+        Note: The output only shows the config path that PowerShell will load from but the file may not exist at yet. We need to create one if file not exist.
 
-     2. 以文件路径 "C:\Users\shengjyerao\git\akamai-tools\01_cip\bin\cip.py" 为例。
-       通过vscode打开上面获取到的 PowerShell 配置文件, 添加以下内容并保存:
+     2. For example, the path of `cip.py` is "C:\Users\shengjyerao\git\akamai-tools\01_cip\bin\cip.py":
+        Create a PowerShell config with following lines:
 
         ``` PowerShell
         function akcip {
@@ -139,39 +142,39 @@ python3 --version
         }
         ```
 
-     3. 重新打开 PowerShell, 检查 cip 命令是否正常
+     3. Re-open PowerShell and check `cip` works or not:
 
         ``` PowerShell
         akcip -v
         ```
 
-## 0x03. 功能菜单
+## 0x03. Menu
 
-| 参数          | 说明                                                | 样例                                                 |
-| :------------ | :-------------------------------------------------- | :--------------------------------------------------- |
-| 无 / h / help | 显示帮助                                            |                                                      |
-| i / input     | 对 -i 之后的内容作为输入进行查询.                   | -i 1.1.1.1                                           |
-|               | 多个值之间以空格分隔.                               | -i 1.1.1.1 pstools.akamai.com                        |
-| f / file      | 以文件作为输入进行查询, 并将查询结果追加到该文件内. | -f /Users/user/iptest-1.txt                          |
-|               | 多个文件名之间以空格分隔.                           | -f /Users/user/iptest-1.txt /Users/user/iptest-2.txt |
-| d / dns       | 使用指定的 DNS 解析域名, 未指定时使用 Local DNS.    | -d 8.8.8.8                                           |
-|               | 多个 DNS 以空格分割.                                | -d 8.8.8.8 1.1.1.1                                   |
-| l             | 查看当前版本更新日志.                               |                                                      |
-| log           | 查看所有版本更新日志.                               |                                                      |
-| u / update    | 更新 cip                                            |                                                      |
-| v             | 查看 cip 版本信息                                   |                                                      |
-| version       | 查看 cip 详细版本信息                               |                                                      |
+| Args                | Note                                                 | Example                                              |
+| :------------------ | :--------------------------------------------------- | :--------------------------------------------------- |
+| No Args / h / help | Display help                                         |                                                      |
+| i / input           | Lookup the arg(s) after -i                         | -i 1.1.1.1                                           |
+|                     | Split with whitespace for multiple values.           | -i 1.1.1.1 pstools.akamai.com                        |
+| f / file            | Lookup the content of file and add the result to it. | -f /Users/user/iptest-1.txt                          |
+|                     | Split with whitespace for multiple files.            | -f /Users/user/iptest-1.txt /Users/user/iptest-2.txt |
+| d / dns             | DNS server, use `Local DNS` if not used.             | -d 8.8.8.8                                           |
+|                     | Split with whitespace for multiple servers.          | -d 8.8.8.8 1.1.1.1                                   |
+| l                   | Check the log of current version.                    |                                                      |
+| log                 | Check the log of all version.                        |                                                      |
+| u / update          | Update cip                                           |                                                      |
+| v                   | Check the version info (short) of cip                |                                                      |
+| version             | Check the version info (detail) of cip               |                                                      |
 
-## 0x04. 样例
+## 0x04. Demo
 
-- 查询 IP
-  - 输入:
+- IP lookup
+  - Input:
 
     ``` shell
     akcip -i 1.1.1.1 2.2.2.2
     ```
 
-  - 输出:
+  - Output:
 
     ``` shell
     ===== SERVER: es.server.com:2001
@@ -180,14 +183,14 @@ python3 --version
     2.2.2.2: [ country_code: TW, city: TAIPEI, network: francetelecom, company: Orange/France_Telecom, timezone: GMT+8, default_answer: N ]
     ```
 
-- 查询域名 (Local DNS):
-  - 输入:
+- Domain lookup (Local DNS):
+  - Input:
 
     ``` shell
     akcip -i www.akamai.com pstools.akamai.com
     ```
 
-  - 输出:
+  - Output:
 
     ``` Text
     ===== SERVER: es.server.com:2001
@@ -200,14 +203,14 @@ python3 --version
     ================= pstools.akamai.com =================
     ```
 
-- 查询域名 (指定 DNS):
-  - 输入:
+- Domain lookup (specific DNS):
+  - Input:
 
     ``` shell
     akcip -i www.akamai.com pstools.akamai.com -d 8.8.8.8
     ```
 
-  - 输出:
+  - Output:
 
     ``` Text
     ===== SERVER: es.server.com:2001
@@ -220,6 +223,6 @@ python3 --version
     ================= pstools.akamai.com =================
     ```
 
-## 0x05. 其他
+## 0x05. Others
 
-- 如果发现在查询过程中存在 "Request error of xxx: timed out", 那就是请求去 EdgeScape server 失败了, 重试即可
+- If the messages shows: "Request error of xxx: timed out" as result means request timeout of the EdgeScape server, just retry for more times.
