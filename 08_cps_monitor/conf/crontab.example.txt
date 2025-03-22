@@ -1,8 +1,8 @@
 # CPS Monitor
-58 06 * * 1-5 rm -f /opt/git/akamai-tools/08_cps_monitor/output/*
-58 06 * * 1-5 rm -f /opt/git/akamai-tools/08_cps_monitor/log/*
-59 06 * * 1-5 python3 /opt/git/akamai-tools/08_cps_monitor/bin/cps_monitor.py -o
-00 07 * * 1-5 python3 /opt/git/akamai-tools/08_cps_monitor/bin/cps_monitor.py -s
+58 06 * * 1-5 rm -f /opt/datas/git/akamai-tools/08_cps_monitor/output/*
+58 06 * * 1-5 rm -f /opt/datas/git/akamai-tools/08_cps_monitor/log/*
+59 06 * * 1-5 python3 /opt/datas/git/akamai-tools/08_cps_monitor/bin/cps_monitor.py -o
+00 07 * * 1-5 python3 /opt/datas/git/akamai-tools/08_cps_monitor/bin/cps_monitor.py -s
 # Webex Sender
-59 09 * * 1-5 rm -f /opt/apps/akamai-cert-reminder-webex/log/*
-00 10 * * 1-5 python3 /opt/apps/akamai-cert-reminder-webex/bin/webex_sender.py
+59 09 * * 1-5 rm -f /opt/datas/apps/akamai-cert-reminder-webex/log/*
+00 10 * * 1-5 python3 /opt/datas/apps/akamai-cert-reminder-webex/bin/webex_sender.py
