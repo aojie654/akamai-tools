@@ -1,9 +1,0 @@
-{
-    "log": {
-        "level": 30
-    },
-    "api_client": {
-        "section": "default"
-    },
-    "accounts": {}
-}

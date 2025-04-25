@@ -10,7 +10,6 @@
 | 04   | Timezone Convertor                                     | Released  | Convert the timestamp with specific timezone          |
 | 05   | [Bot Attacker](./05_bot_attacker/README.md)            | Released  | Attack simulator                                      |
 | 06   | [dig](./06_dig/README.md)                              | Released | DNS resolve with multple dns like dnschecker.org      |
-| 08   | [CPS Monitor](./08_cps_monitor/README.md)              | Released | List all the certificates renewal by the account list |
 
 ## 0x02. What shoud I do?
 
