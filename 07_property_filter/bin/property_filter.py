@@ -3,11 +3,11 @@
 
 
 import csv
-import jsonc
 import sys
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
+import jsonc
 import requests
 from akamai.edgegrid import EdgeGridAuth, EdgeRc
 
@@ -131,7 +131,7 @@ else:
 
     # Formated results
     result_dict = dict()
-    result_csv_headers = ["property", "staging version", "staging status", "staging rule locations", "production version", "production status",  "production rule locations"]
+    result_csv_headers = ["property", "staging version", "staging status", "staging rule locations", "production version", "production status", "production rule locations"]
     prop_list = rep_dict["results"]
     if len(prop_list) > 0:
         for prop_tmp in prop_list:
