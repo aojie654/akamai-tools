@@ -17,24 +17,26 @@ export AK_HEADERE="Pragma: akamai-x-get-request-id, akamai-x-cache-on, akamai-x-
 ## cURL alias
 
 ``` shell
+# Export time format
+export CURLTIME="-w \"DNS_lookup_time: %{time_namelookup}, TCP_Connection_time: %{time_connect}, SSL_Connection_time: %{time_appconnect}, TTFB: %{time_starttransfer}, Total_time: %{time_total} \""
 # curl: HEAD
-alias curli="curl -I"
+alias curli="curl -I ${CURLTIME}"
 # curl: HEAD with Akamai Pragma Headers
-alias curlia="curl -I -H \"${AK_HEADER}\""
+alias curlia="curl -I ${CURLTIME} -H \"${AK_HEADER}\" "
 # curl: HEAD with Akamai Pragma Headers with akamai-x-get-extracted-values
-alias curliae="curl -I -H \"${AK_HEADERE}\""
+alias curliae="curl -I ${CURLTIME} -H \"${AK_HEADERE}\""
 # curl: GET with response headers and response body
-alias curls="curl -s -S -D -"
+alias curls="curl -s -S -D - ${CURLTIME}"
 # curl: like curlia
-alias curlsa="curl -s -S -D - -H \"${AK_HEADER}\""
+alias curlsa="curl -s -S -D - ${CURLTIME} -H \"${AK_HEADER}\""
 # curl: like curliae
-alias curlsae="curl -s -S -D - -H \"${AK_HEADERE}\""
+alias curlsae="curl -s -S -D - ${CURLTIME} -H \"${AK_HEADERE}\""
 # curl: GET with response headers but without response body
-alias curln="curl -s -S -D - -o /dev/null"
+alias curln="curl -s -S -D - -o /dev/null ${CURLTIME}"
 # curl: like curlia
-alias curlna="curl -s -S -D - -o /dev/null -H \"${AK_HEADER}\""
+alias curlna="curl -s -S -D - -o /dev/null ${CURLTIME} -H \"${AK_HEADER}\""
 # curl: like curliae
-alias curlnae="curl -s -S -D - -o /dev/null -H \"${AK_HEADERE}\""
+alias curlnae="curl -s -S -D - -o /dev/null ${CURLTIME} -H \"${AK_HEADERE}\""
 ```
 
 ## dig
