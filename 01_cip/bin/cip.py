@@ -26,6 +26,13 @@ config_parser = ConfigParser()
 config_parser.read(config_path)
 config_stanza = "DEFAULT"
 config_default = config_parser[config_stanza]
+
+# resolv path
+# Resolv 文件路径
+resolv_path: str = config_default.get("resolv_path", "/etc/resolv.conf")
+
+# Timeout
+# 超时时间
 server_timeout = eval(config_default["timeout"])
 
 # Set the output fields
@@ -222,7 +229,7 @@ def domain_resolver(domain):
     """
     # Create the object of resolver
     # 创建 resolver 对象
-    resolver = dns.resolver.Resolver()
+    resolver = dns.resolver.Resolver(filename=resolv_path)
     resolver.timeout = 1
     resolver.lifetimeout = 1
     # Use the input as DNS server when input is not None
@@ -554,7 +561,7 @@ if __name__ == "__main__":
     if (args.input or args.file):
         # _DEBUG_FLAG
         # print("参数详情: {:}".format(args))
-        tip_msg = "{:} SERVER: {:}:{:}".format("="*5, server_es, server_port)
+        tip_msg = "{:} SERVER: {:}:{:}".format("=" * 5, server_es, server_port)
         print(tip_msg)
 
         # Use the input "-d" as DNS server
@@ -567,7 +574,7 @@ if __name__ == "__main__":
         else:
             tip_dns = "Local DNS"
         tip_dns_msg = "DNS: {:}".format(tip_dns)
-        tip_msg = "{:} {:}".format("="*5, tip_dns_msg)
+        tip_msg = "{:} {:}".format("=" * 5, tip_dns_msg)
         print(tip_msg)
 
         if args.input:
