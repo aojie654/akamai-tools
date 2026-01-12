@@ -57,6 +57,29 @@ python3 --version
 4. Update config file:
    1. Copy `06_dig/conf/dns.example.json` to `06_dig/conf/dns.json`
    2. (Optional) Update DNS server list
+   3. (Optional) Remember to set the value of resolv_conf when you can't or don't want to use the `/etc/resolve.conf` as the resolve file. For example:
+      - For Termux on Android
+        ``` json
+        {
+            "resolv_path": "/data/data/com.termux/files/usr/etc/resolv.conf",
+            "208.67.222.220": {
+                "DNS": "208.67.222.220",
+                "Location": "San Francisco CA, United States",
+                "Provider": "OpenDNS"
+            }
+        }
+        ```
+      - Override the resolve file path to `/path/to/your/resolv/config`:
+        ``` json
+        {
+            "resolv_path": "/path/to/your/resolv/config",
+            "208.67.222.220": {
+                "DNS": "208.67.222.220",
+                "Location": "San Francisco CA, United States",
+                "Provider": "OpenDNS"
+            }
+        }
+        ```
 5. For e.g. the path `dig.py` is `/Users/user/git/akamai-tools/06_dig/bin/dig.py`, validate the `dig` works or not:
 
    ``` shell

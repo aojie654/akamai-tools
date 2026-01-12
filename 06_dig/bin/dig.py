@@ -93,7 +93,8 @@ def resolve_hostname(hostname, dns_type, output_exception):
     try:
         # Get DNS dict
         dns_dict = get_dns()
-        dns_resolver = resolver.Resolver()
+        resolv_path: str = dns_dict.get("resolv_path", "/etc/resolv.conf")
+        dns_resolver = resolver.Resolver(filename=resolv_path)
         for dns_server in dns_dict.keys():
             hostname_t = hostname
             if dns_server.lower() in ["default", "local", "localdns"]:

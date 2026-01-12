@@ -58,9 +58,15 @@ python3 --version
 
 4. Update the config file:
    1. Copy the `01_cip/bin/config.example.ini` to `01_cip/bin/config.ini`.
-   2. (Optional) Edit the Timeout and Field limit in section: `[DEFAULT]`
-   3. Edit the server info of EdgeScape in the section: `[EDGESCAPE]`.
-   4. Edit the server info of update in section: `[UPDATE]`
+   2. (Optional) Edit the resolve config file path.
+      - For Termux on Android, just uncomment the line: 
+      ``` ini
+      ;resolv_path = /data/data/com.termux/files/usr/etc/resolv.conf
+      ```
+      - If you can't or you don't want to use /etc/resolv.conf as the resolve file, set the values of resolv_path which the path of resolv file you want to use.
+   3. (Optional) Edit the Timeout and Field limit in section: `[DEFAULT]`.
+   4. Edit the server info of EdgeScape in the section: `[EDGESCAPE]`.
+   5. Edit the server info of update in section: `[UPDATE]`
 5. For e.g. the path `cip.py` is `/Users/user/git/akamai-tools/01_cip/bin/cip.py`, validate the cip works or not:
 
    ``` shell

@@ -60,9 +60,21 @@ else:
             print_msg = json.dumps(obj=dns_result[dns_dns], ensure_ascii=False, indent=4)
             print(print_msg)
 
+    if (fop.exists()):
+        with open(file=fop, mode="r", encoding="utf-8", errors="ignore") as foo:
+            foc = foo.read()
+            dns_json_org:dict = json.loads(foc)
+            resolv_path = dns_json_org.get("resolv_path", None)
+            if (resolv_path):
+                dns_result["resolv_path"] = resolv_path
+            else:
+                pass
+    else:
+        pass
+
     with open(file=fop, mode="w+", encoding="utf-8", errors="ignore") as foo:
-        dns_json = json.dumps(obj=dns_result, ensure_ascii=False, indent=4)
-        foo.write(dns_json)
+        dns_json_new = json.dumps(obj=dns_result, ensure_ascii=False, indent=4)
+        foo.write(dns_json_new)
 
     print_msg = "DNS result saved to: {:}".format(fop)
     print(print_msg)

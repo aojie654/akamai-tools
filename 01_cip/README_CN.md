@@ -57,10 +57,16 @@ python3 --version
     ```
 
 4. 修改配置文件:
-   1. 复制 `01_cip/bin/config.example.ini` 为 `01_cip/bin/config.ini`
-   2. (可选) 修改 `[DEFAULT]` 中的 EdgeSacpe 服务器请求超时时间及字段显示信息
-   3. 修改 `[EDGESCAPE]` 中的 EdgeScape 服务器信息
-   4. 修改 `[UPDATE]` 中的 cip 更新服务器信息
+   1. 复制 `01_cip/bin/config.example.ini` 为 `01_cip/bin/config.ini`.
+   2. (可选) 设置解析文件的路径.
+      - 针对安卓设备上运行的 Termux, 可以直接取消注释以下行:
+      ``` ini
+      ;resolv_path = /data/data/com.termux/files/usr/etc/resolv.conf
+      ```
+      - 如果你无法或者不想使用 /etc/resolv.conf 作为解析文件, 那么就将 resolv_path 设置为你希望使用的解析文件的路径.
+   3. (可选) 修改 `[DEFAULT]` 中的 EdgeSacpe 服务器请求超时时间及字段显示信息.
+   4. 修改 `[EDGESCAPE]` 中的 EdgeScape 服务器信息.
+   5. 修改 `[UPDATE]` 中的 cip 更新服务器信息.
 5. 以 cip.py 路径为 `/Users/user/git/akamai-tools/01_cip/bin/cip.py` 为例, 通过以下命令查看 cip 是否运行正常:
 
    ``` shell
