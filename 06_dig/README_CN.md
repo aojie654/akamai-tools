@@ -54,6 +54,29 @@ python3 --version
 4. 修改配置文件:
    1. 复制 `06_dig/conf/dns.example.json` 为 `06_dig/conf/dns.json`
    2. (可选) 根据个人喜好, 按照格式修改 DNS 服务器列表
+   3. (可选) 如果你无法或者不想使用默认的解析文件 `/etc/resolv.conf`, 可以在配置文件中设置 resolv_path 变量的值:
+      - 对于 Termux on Android
+        ``` json
+        {
+            "resolv_path": "/data/data/com.termux/files/usr/etc/resolv.conf",
+            "208.67.222.220": {
+                "DNS": "208.67.222.220",
+                "Location": "San Francisco CA, United States",
+                "Provider": "OpenDNS"
+            }
+        }
+        ```
+      - 对于其他配置文件路径, 假设为 `/path/to/your/resolv/config`:
+        ``` json
+        {
+            "resolv_path": "/path/to/your/resolv/config",
+            "208.67.222.220": {
+                "DNS": "208.67.222.220",
+                "Location": "San Francisco CA, United States",
+                "Provider": "OpenDNS"
+            }
+        }
+        ```
 5. 以 dig.py 路径为 `/Users/user/git/akamai-tools/06_dig/bin/dig.py` 为例, 通过以下命令查看 dig 是否运行正常:
 
    ``` shell
