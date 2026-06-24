@@ -1,15 +1,25 @@
 # Akamai Tools
 
+THE REPO HAS ARCHIVED.
+
+| Name        | Oversea                                             | China Mainland                                                 |
+| ----------- | --------------------------------------------------- | -------------------------------------------------------------- |
+| alias       | https://github.com/aojie654/akamai-tool-alias       | https://gl.aojie654.com:21043/aojie654/akamai-tool-alias       |
+| cip         | https://github.com/aojie654/akamai-tool-cip         | https://gl.aojie654.com:21043/aojie654/akamai-tool-cip         |
+| dig         | https://github.com/aojie654/akamai-tool-dig         | https://gl.aojie654.com:21043/aojie654/akamai-tool-dig         |
+| ref decoder | https://github.com/aojie654/akamai-tool-ref-decoder | https://gl.aojie654.com:21043/aojie654/akamai-tool-ref-decoder |
+
+
 ## 0x01. Introduction
 
-| No.  | Name                                                   | Status    | Description                                           |
-| :--- | :----------------------------------------------------- | :-------- | :---------------------------------------------------- |
-| 01   | [CIP](./01_cip/README.md)                              | Released | IP2Location with Akamai EdgeScape Pro                 |
-| 02   | Python Curl                                            | Canceled  | simple curl with Akamai pragma headers in python      |
-| 03   | [Reference Decoder](./03_refference_decoder/README.md) | Released  | decode the reference code with HTML encoded           |
-| 04   | Timezone Convertor                                     | Released  | Convert the timestamp with specific timezone          |
-| 05   | [Bot Attacker](./05_bot_attacker/README.md)            | Released  | Attack simulator                                      |
-| 06   | [dig](./06_dig/README.md)                              | Released | DNS resolve with multple dns like dnschecker.org      |
+| No.  | Name                                                   | Status   | Description                                      |
+| :--- | :----------------------------------------------------- | :------- | :----------------------------------------------- |
+| 01   | [CIP](./01_cip/README.md)                              | Released | IP2Location with Akamai EdgeScape Pro            |
+| 02   | Python Curl                                            | Canceled | simple curl with Akamai pragma headers in python |
+| 03   | [Reference Decoder](./03_refference_decoder/README.md) | Released | decode the reference code with HTML encoded      |
+| 04   | Timezone Convertor                                     | Released | Convert the timestamp with specific timezone     |
+| 05   | [Bot Attacker](./05_bot_attacker/README.md)            | Released | Attack simulator                                 |
+| 06   | [dig](./06_dig/README.md)                              | Released | DNS resolve with multple dns like dnschecker.org |
 
 ## 0x02. What shoud I do?
 
